@@ -1,0 +1,172 @@
+body {
+	background-color: #fff;
+	font-family: sans-serif;
+	font-size: small;
+	text-align: center;
+}
+
+.site {
+	font-size: 115%;
+	text-align: justify;
+	width: 768px;
+	margin: 0 auto 2em;
+	padding-top: 3em;
+	line-height: 1.5em;
+}
+
+@media screen and (max-width: 853px) {
+	.site {
+		width: 90%;
+	}
+}
+
+h1 {
+	text-align: center;
+	margin-bottom: 1em;
+}
+
+#home h1, #tags h1 {
+	text-align: left;
+}
+
+p {
+	margin: 1em 0;
+}
+
+
+/* nagłówek */
+.header a {
+	font-weight: bold;
+	text-decoration: none;
+}
+
+.header a:hover {
+	color: #000;
+}
+
+.header .title {
+	display: inline-block;
+	margin-bottom: 2em;
+}
+
+.header .title a {
+	color: #a00;
+}
+
+.header a.extra {
+	color: #aaa;
+	margin-left: 1.5em;
+}
+
+
+/* stopka */
+.footer {
+	font-size: 85%;
+	text-align: left;
+	color: #666;
+	border-top: 4px solid #eee;
+	margin-top: 2em;
+	overflow: hidden;
+}
+
+.footer a {
+	color: #8085c1;
+}
+
+.footer .info {
+	width: min-content;
+	margin: 8px;
+}
+
+.footer .info .head {
+	width: max-content;
+}
+
+.footer .info .more {
+	font-size: 80%;
+	line-height: normal;
+}
+
+.footer .logo {
+	display: inline;
+	float: right;
+	margin: 8px;
+}
+
+.footer .logo img {
+	height: 80px;
+}
+
+
+/* lista postów */
+.posts {
+	list-style-type: none;
+	margin-bottom: 2em;
+}
+
+.posts li {
+	margin-top: 8px;
+	line-height: 1.75em;
+}
+
+.posts .date {
+	color: #aaa;
+	font-family: monospace;
+	font-size: 80%;
+}
+
+.posts .summary {
+	font-size: 80%;
+}
+
+
+/* informacje o poście na jego stronie + nawigacja */
+.meta {
+	color: #aaa;
+}
+
+.meta .navigation {
+	display: inline;
+	float: right;
+	font-size: 80%;
+}
+
+.tags {
+	color: #aaa;
+	margin-top: 32px;
+}
+
+.tags a {
+	color: #8085c1;
+}
+
+.moreposts {
+	text-align: right;
+}
+
+.moreposts a {
+	color: #8085c1;
+}
+
+
+/* treść postu */
+.post pre {
+	border: 1px solid #ddd;
+	background-color: #eef;
+	padding: 0 0.4em;
+	overflow: auto;
+}
+
+.post ul, .post ol {
+	margin-left: 1.35em;
+}
+
+.post code {
+	border: 1px solid #ddd;
+	background-color: #eef;
+	padding: 0 0.2em;
+}
+
+.post pre code {
+	border: none;
+}

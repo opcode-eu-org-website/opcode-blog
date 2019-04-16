@@ -1,0 +1,12 @@
+name: OpCode.eu.org – Blog
+url: http://blog.opcode.eu.org
+destination: /dev/shm/opcode-blog
+exclude:
+  - Makefile
+  - obraz.py
+  - README.md
+tags_plugin:
+  descriptions:
+    tag: Pełny tekst
+mainpage:
+  maxposts: 7

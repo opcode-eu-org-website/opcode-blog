@@ -1,0 +1,14 @@
+---
+layout: default
+title: Otagowane posty
+---
+
+<div id="tags">
+	{% set description = site.tags_plugin.descriptions[page.tag] %}
+	<h1>{{ description|default(page.tag)|title }}</h1>
+	<ul class="posts">
+	{% for post in page.posts|sort(attribute='date', reverse=True) %}
+		<li><span>{{ post.date.strftime('%Y-%m-%d') }}</span> &raquo; <a href="{{ post.url }}">{{ post.title }}</a></li>
+	{% endfor %}
+	</ul>
+</div>

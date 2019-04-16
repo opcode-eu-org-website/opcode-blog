@@ -1,0 +1,27 @@
+---
+layout: default
+---
+
+<div class="meta">
+	<div class="navigation">
+		{%- if page.previous %}
+			<a href="{{ site.baseurl }}{{ page.previous.url }}">« nowszy</a>
+		{%- endif %}
+		{%- if page.next %}
+			<a href="{{ site.baseurl }}{{ page.next.url }}">starszy »</a>
+		{%- endif %}
+	</div>
+	<div class="published">{{ page.date.strftime('%Y-%m-%d') }}</div>
+</div>
+<h1>{{ page.title }}</h1>
+<div class="post">
+	{{ content }}
+</div>
+<div class="tags">
+{%- if page.tags %}
+	Tagi:
+		{%- for tag in page.tags %}
+		<a href="{{ site.baseurl }}/tags/{{ tag }}.html">{{ tag }}</a>
+		{%- endfor %}
+{%- endif %}
+</div>
