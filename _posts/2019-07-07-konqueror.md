@@ -96,7 +96,26 @@ Przydatną opcją tego typu jest możliwość tekstowej lub hexalnej edycji plik
 	Name=Okteta HEX Editor
 	Icon=text-x-hex
 
+### Menu "create new"
+
+Możliwe jest też dodanie pozycji do menu pozwalającego na tworzenie nowych plików. W tym celu należy w katalogu `.local/share/templates` utworzyć plik `.desktop` opisujący pozycję tego menu – np. `LaTeX.desktop`:
+
+	[Desktop Entry]
+	Name=LaTeX File
+	Comment=Enter LaTeX filename:
+	Type=Link
+	URL=LaTeX.tex
+	Icon=text-x-tex
+
+Oraz wskazany w nim plik wzorcowy – w powyższym przykładzie `LaTeX.tex` z zawartością która ma być kopiowana do nowo tworzonego pliku, np.:
+
+	\documentclass[a4paper]{article}
+	% \usepackage{}
+	\begin{document}
+	
+	\end{document}
+
 
 ## Uwagi końcowe
 
-Celem wprowadzenia niektórych z opisywanych modyfikacji w życie po utworzeniu stosownych konfigów może być potrzeba wywołania `kbuildsycoca5`.
+Celem wprowadzenia niektórych z opisywanych modyfikacji w życie po utworzeniu stosownych konfigów może być potrzeba wywołania `kbuildsycoca5` i/lub restart Konquerora.
