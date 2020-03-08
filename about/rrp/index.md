@@ -29,7 +29,7 @@ Bardzo okazjonalnie bywam na różnych forach dyskusyjnych, kanałach IRC i grup
 ## Dane kryptograficzne, wizytówki, konta bankowe itp:
 
 * klucz publiczny <a style="color: green" href="http://pl.wikipedia.org/wiki/OpenPGP">OpenPGP</a> (GnuPG), wygenerowany w oparciu o algorytm DSA: [id: 4096R/24678AD7](/about/rrp/pub_key-rrp.gpg) (odcisk: 7A50 DAF8 6FC0 0AE4 F218  DB14 63B8 9022 2467 8AD7)
-* klucz publiczny <a style="color: green" href="http://pl.wikipedia.org/wiki/SSH">SSH</a>, wygenerowany w oparciu o algorytm RSA: [id: rrp@robert](/about/rrp/pub_key-rrp.ssh)
-* konto bankowe (PLN):   37 1050 1041 1000 0022 2631 9636
-* konto bankowe (EUR): PL48 1050 1041 1000 0091 2613 4205
-* konto bankowe (USD): PL04 1050 1041 1000 0091 2613 4221
+* klucz publiczny <a style="color: green" href="http://pl.wikipedia.org/wiki/SSH">SSH</a>, wygenerowany w oparciu o algorytm RSA: [id: rrp@dragon](/about/rrp/pub_key-rrp.ssh)
+* konto bankowe (PLN):    37 1050 1041 1000 0022 2631 9636
+* konto bankowe (EUR): PL 48 1050 1041 1000 0091 2613 4205
+* konto bankowe (USD): PL 04 1050 1041 1000 0091 2613 4221
