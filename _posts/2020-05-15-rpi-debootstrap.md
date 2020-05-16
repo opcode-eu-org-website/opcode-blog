@@ -22,6 +22,8 @@ Skrypt ten można potraktować też jako instruktarz tworzenia takich obrazów, 
 * instalacja odpowiedniego jądra i bootloadera (`raspberrypi-kernel` i `raspberrypi-bootloader`)
 * utworzenie plików `cmdline.txt` i `config.txt` na rozruchowej partycji vfat `/boot`
 
+Więcej informacji o tworzeniu bootowalnych obrazów można znaleźć w artykule [Własny Debian LiveUSB](http://www.opcode.eu.org/LiveUSB.xhtml).
+
 Tworzony obraz dedykowany jest dla Raspberry Pi w pierwszej wersji (dla innych odmian konieczne może być doinstalowanie dodatkowych pakietów z firmware) dostępnego jedynie poprzez SSH (dlatego zamiast ustawiania hasła skrypt przypomina o dodaniu kluczy SSH) i testowany był na „Raspberry Pi Model B rev. 2”.
 
 Do automatycznej personalizacji tworzonego obrazu (np. ustawiania kluczy SSH, konfiguracji IP, etc) może posłużyć plik `build-rpi-image.conf` i redefiniowana w nim funkcja `configureLOCAL`. W pliku tym można tez zmienić wartości zmiennych konfiguracyjnych takich jak np. `piuser` (określającej nazwę usera z sudo) `hostname` (określającej nazwę hosta).
