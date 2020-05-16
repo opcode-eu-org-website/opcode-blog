@@ -143,10 +143,10 @@ L+ /var/lib/dhcp  -    -    -    -  /run/dhcp
 EOF
 rm -fr ${mountdir}/tmp/ ${mountdir}/var/tmp ${mountdir}/var/log/ ${mountdir}/var/lib/dhcp/
 mkdir ${mountdir}/run/tmp ${mountdir}/run/log ${mountdir}/run/dhcp
-ln -s ${mountdir}/run/tmp ${mountdir}/tmp;
-ln -s ${mountdir}/run/tmp ${mountdir}/var/tmp;
-ln -s ${mountdir}/run/log ${mountdir}/var/log;
-ln -s ${mountdir}/run/dhcp ${mountdir}/var/lib/dhcp;
+ln -s /run/tmp ${mountdir}/tmp;
+ln -s /run/tmp ${mountdir}/var/tmp;
+ln -s /run/log ${mountdir}/var/log;
+ln -s /run/dhcp ${mountdir}/var/lib/dhcp;
 
 sed -e 's@^.*Storage=.*@Storage=volatile@' -i ${mountdir}/etc/systemd/journald.conf
 
