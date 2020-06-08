@@ -120,6 +120,32 @@ p {
 }
 
 
+/* nagłówek listy postów */
+.posts_head {
+	margin-bottom: 1em;
+}
+
+.posts_head h1 {
+	display: inline-block;
+	margin: 0;
+}
+
+.posts_head .navigation {
+	display: inline-block;
+	float: right;
+}
+
+.posts_head .navigation, .moreposts {
+	text-align: center;
+}
+
+.posts_head a, .moreposts a {
+	color: #777;
+	font-weight: bold;
+	text-decoration: none;
+}
+
+
 /* informacje o poście na jego stronie + nawigacja */
 .meta {
 	color: #aaa;
@@ -137,14 +163,6 @@ p {
 }
 
 .tags a {
-	color: #8085c1;
-}
-
-.moreposts {
-	text-align: right;
-}
-
-.moreposts a {
 	color: #8085c1;
 }
 

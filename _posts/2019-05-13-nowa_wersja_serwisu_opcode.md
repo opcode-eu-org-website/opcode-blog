@@ -2,6 +2,7 @@
 layout: post
 title: Nowa wersja serwisu
 author: Robert Paciorek
+hidden: true
 tags:
 - opcode.eu.org
 ---

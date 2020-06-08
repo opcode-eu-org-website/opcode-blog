@@ -92,7 +92,8 @@ DEFAULT_CONFIG: Dict[str, Any] = {
     'exclude_patterns': [
         r'^[\.#].*',
         r'.*~$',
-        r'.*\.s[uvw][a-z]$',  # *.swp files, etc.
+        r'.*\.swp$',
+        #r'.*\.s[uvw][a-z]$',  # *.swp files, etc.
     ],
     'full_build_patterns': [
         r'_layouts',

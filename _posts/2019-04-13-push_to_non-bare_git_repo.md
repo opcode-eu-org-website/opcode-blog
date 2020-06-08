@@ -1,6 +1,6 @@
 ---
 layout: post
-title: git push do repozytorium z kopią roboczą
+title: Git push do repozytorium z kopią roboczą
 author: Robert Paciorek
 tags:
 - git

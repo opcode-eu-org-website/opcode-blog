@@ -3,16 +3,47 @@ layout: default
 ---
 
 <div id="home">
-	<h1>Posty</h1>
+	<div class="posts_head">
+		<h1>Posty</h1>
+		{%- if not page.show_all %}
+		<div class="navigation">
+			{%- if page.prev_url | length %}
+				<a href="{{ site.baseurl }}{{ page.prev_url }}">« nowsze</a>&nbsp;
+			{%- endif %}
+			{%- if page.next_url | length %}
+				&nbsp;<a href="{{ site.baseurl }}{{ page.next_url }}">starsze »</a>
+			{%- endif %}
+			{%- if page.prev_url | length or page.next_url | length %}
+				<br /><a href="show_all.html">wszystkie</a>
+			{%- endif %}
+		</div>
+		{%- endif %}
+	</div>
 	<ul class="posts">
-	{%- for post in site.posts | batch(site.mainpage.maxposts) | first %}
+	{%- for post in site.posts if page.show_all or not post.hidden -%}
+	{%- if page.show_all or ( loop.index0 >= page.start_post and loop.index0 < page.end_post ) %}
 		<li>
-			<span class="date">{{ post.date.strftime('%Y-%m-%d') }}</span> &raquo; <a href="{{ post.url }}">{{ post.title }}</a><br />
+			<span class="date">{{loop.index}}{{ post.date.strftime('%Y-%m-%d') }}</span> &raquo; <a href="{{ post.url }}">{{ post.title }}</a><br />
 			<span class="summary">{{ " ".join(site.xmlRegex.sub("", post.content).split(' ')[0:30]) }} ...</span>
 		</li>
-	{% endfor -%}
+	{% endif -%}
+	{%- endfor -%}
 	</ul>
-	{% if site.posts | length > site.mainpage.maxposts %}<p class="moreposts"><a href="archive.html">starsze wspisy</a></p>{% endif %}
+	
+	{%- if not page.show_all %}
+	<p class="moreposts">
+		{%- if page.prev_url | length %}
+			<a href="{{ site.baseurl }}{{ page.prev_url }}">« nowsze</a>&nbsp; |
+		{%- endif %}
+		{%- if page.prev_url | length or page.next_url | length %}
+			&nbsp;<a href="show_all.html">wszystkie</a>&nbsp;
+		{%- endif %}
+		{%- if page.next_url | length %}
+			| &nbsp;<a href="{{ site.baseurl }}{{ page.next_url }}">starsze »</a>
+		{%- endif %}
+	</p>
+	{%- endif %}
+	
 	<h1>Tagi</h1>
 	<ul class="tags">
 	{%- for tag in site.tags %}
