@@ -14,7 +14,7 @@ Zawodowo zajmuję się głównie administracją systemową serwerów linuxowych 
 ## W chwili obecnej jestem:
 
 * autorem serwisu [OpCode](http://www.opcode.eu.org/) oraz powiązanych projektów
-* prowadzącym zajęcia w ramach [Matematyki dla Ciekawych Świata](http://ciekawi.icm.edu.pl/) oraz autorem części programu i materiałów dla edycji głównej (kurs programistyczny w edycjach IX - X) i kursów wakacyjnych (VIIIbis - IXbis)
+* prowadzącym zajęcia w ramach [Matematyki dla Ciekawych Świata](http://ciekawi.icm.edu.pl/) oraz autorem części programu i materiałów dla edycji głównej (kurs programistyczny w edycjach IX - XI) i kursów wakacyjnych (VIIIbis - Xbis)
 * pracownikiem [Interdyscyplinarnego Centrum Modelowania Matematycznego i Komputerowego](http://www.icm.edu.pl/) [Uniwersytetu Warszawskiego](http://www.uw.edu.pl/)
 
 <img src="/about/rrp/photo_2.jpg" alt="tak wyglądam ..." style="float: right; padding: 5px 0px 5px 13px;" />

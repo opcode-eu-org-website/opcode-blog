@@ -4,6 +4,7 @@ title: Orange Światłowód, FunBox 3.0 i IPv6
 author: Robert Paciorek
 tags:
 - ipv6
+- network
 ---
 
 Orange zapewnia natywny dostęp IPv6 jeżeli w ramach loginu PPPoE `...@neostrada.pl` użyjemy sufiksu `/ipv6` czyli `...@neostrada.pl/ipv6`.
