@@ -23,7 +23,7 @@ layout: default
 	{%- for post in site.posts if page.show_all or not post.hidden -%}
 	{%- if page.show_all or ( loop.index0 >= page.start_post and loop.index0 < page.end_post ) %}
 		<li>
-			<span class="date">{{loop.index}}{{ post.date.strftime('%Y-%m-%d') }}</span> &raquo; <a href="{{ post.url }}">{{ post.title }}</a><br />
+			<span class="date">{{ post.date.strftime('%Y-%m-%d') }}</span> &raquo; <a href="{{ post.url }}">{{ post.title }}</a><br />
 			<span class="summary">{{ " ".join(site.xmlRegex.sub("", post.content).split(' ')[0:30]) }} ...</span>
 		</li>
 	{% endif -%}
