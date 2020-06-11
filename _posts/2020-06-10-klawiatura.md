@@ -31,9 +31,11 @@ Warto zauważyć że nazwy typu `KEY_Y` są prawdziwe dla układu klawiatury QWE
 
 ### keycode → znak
 
-Kolejnym etapem jest mapowanie *keycode* (wraz z obecnymi przy nim modyfikatorami) na znak (lub ciąg znaków, bądź znaczenie specjalne), który ma być wprowadzany przy jego pomocy.
+Kolejnym etapem jest mapowanie *keycode* (wraz z obecnymi przy nim modyfikatorami) na znak (lub ciąg znaków, bądź modyfikator), który ma być wprowadzany przy jego pomocy.
 To na tym etapie ustalane jest że np. `keycode == 2` będzie normalnie wprowadzał znak `1`, a z modyfikatorem *shift* będzie wprowadzał znak `!`.
 To również na tym etapie ustalane jest że np. `keycode == 42` będzie oznaczał modyfikator `shift`.
+
+Warto wspomnieć, iż klawiszom nie mapowanym na znak drukowany lub sterujący ASCII (np. strzałki, F1, F12) przypisywany jest ciąg znaków rozpoczynający się od bajtu 0x1B (escape, zapisywany wizualnie niekiedy jako `^[`). Na przykład strzałka w górę zostanie zamieniona na sekwencję 3 bajtów: 0x1B 0x5B 0x41, czyli `^[[A`. Niektóre z programów nie rozumieją sekwencji związanych z niektórymi klawiszami (np. strzałkami) i wypisują je na ekran w postaci np. `^[[A`. Sekwencję taka można także wprowadzić naciskając jako `Ctrl`+`[`, `[`, `A` i zostanie ona zrozumiana przez wiele programów jako strzałka w górę (wyjątkiem mogą być programy obsługujące terminal w bardziej zaawansowany sposób np. poprzez *ncurses*).
 
 Na tym etapie rozchodzi się także konfiguracja klawiatury na potrzeby konsoli tekstowej i X serwera.
 Warto tu zauważyć, że X serwer operuje na wartościach *keycode* zwiększonych o 8, a konsola tekstowa bezpośrednio na wartościach *keycode*.
@@ -133,19 +135,20 @@ Pliki geometrii znajdują się w `/usr/share/X11/xkb/geometry/` i zgodnie z <spa
 
 * [X keyboard extension @ ArchWiki](https://wiki.archlinux.org/index.php/X_keyboard_extension)
 * [Xorg Keyboard configuration @ ArchWiki](https://wiki.archlinux.org/index.php/Xorg/Keyboard_configuration)
+* [Klawisze z *keycode* &gt; 0xf7 - evtest, udev](https://morfikov.github.io/post/klawiatura-multimedialna-i-niedzialajace-klawisze/)
 * [Wprowadzanie znaków niedostępnych na klawiaturze](http://dug.net.pl/tekst/151/)
 
 ## Odbiornik IR i sterowanie pilotem
-Możliwe jest także korzystanie z pilotów podczerweni do sterowania komputerem z linuxem, przy pomocy odpowiedniego odbiornika.
+Możliwe jest także korzystanie z pilotów podczerwieni do sterowania komputerem z linuxem, przy pomocy odpowiedniego odbiornika.
 Wbudowany odbiornik podczerwieni posiada wiele z tunerów telewizyjnych DVB.
 Jeżeli jest on obsługiwany przez nasze jądo mapowania jego przycisków na sygnały klawiatury możemy dokonać z wykorzystaniem `ir-keytable`.
 
 Polecenie `ir-keytable` wylistuje dostępne odbiorniki podczerwieni wraz z informacjami na ich temat. 
 
-Polecenie `ir-keytable -s rc0 -t -v` pozwala na wyświetlanie dla wskazanego odbiornika (w tym przykłądzie `rc0`) surowych numerów przycisków zczytanych z pilota – *scancode* oraz przypisanych do nich *keycode*.
+Polecenie `ir-keytable -s rc0 -t -v` pozwala na wyświetlanie dla wskazanego odbiornika (w tym przykładzie `rc0`) surowych numerów przycisków zczytanych z pilota – *scancode* oraz przypisanych do nich *keycode*.
 Wartości *keycode* wypisywane są w postaci `KEY_XXXX(0xNNNN)`, gdzie `0xNNNN` to szesnastkowo zapisany numer *keycode* a `KEY_XXXX` to związana z nim nazwa.
 
-Polecenie `ir-keytable -s rc0 -w /etc/rc_keymaps/rtl_simple` pozwala załadować tablice mapowań *scancode* → *keycode* (w tym przykłądzie `/etc/rc_keymaps/rtl_simple`) dla wskazanego odbiornika podczerwieni (w tym przykłądzie `rc0`).
+Polecenie `ir-keytable -s rc0 -w /etc/rc_keymaps/rtl_simple` pozwala załadować tablice mapowań *scancode* → *keycode* (w tym przykładzie `/etc/rc_keymaps/rtl_simple`) dla wskazanego odbiornika podczerwieni (w tym przykładzie `rc0`).
 Tablica taka ma postać pliku tekstowego, rozpoczynającego się komentarzem sterującym określającym nazwę tej tablicy oraz używany protokół komunikacji z pilotem - np. `# table rtl_simple, type: NEC`.
 W kolejnych liniach podawane są mapowania – w pierwszej kolumnie podawana jest numeryczna wartość *scancode*, a w drugiej numeryczna wartość lub nazwa *keycode* na który ma być on mapowany.
 Przykładowy plik może wyglądać następująco:
@@ -174,7 +177,7 @@ Przykładowy plik może wyglądać następująco:
 
 Aby ustawienia były wczytywane automatycznie po starcie systemu / podłączeniu urządzenia należy w pliku `/etc/rc_maps.cfg` dodać wpis wiąrzący moduł obsługujący odbiornik IR z mapą klawiszy - np: `dvb_usb_rtl28xxu  *   rtl_simple`, gdzie mapa zapisana w pliku `/etc/rc_keymaps/rtl_simple`.
 
-Należy mieć na uwadze, że po dodaniu nowych (nie występujących wcześniej w konfiguracji tego urządzenia) wartości *keycode* aby były zauważone w X serwerze (np. w `xev`) należy zrestatować odbiornik podczerwieni lub X serwer.
+Należy mieć na uwadze, że po dodaniu nowych (nie występujących wcześniej w konfiguracji tego urządzenia) wartości *keycode* aby były zauważone w X serwerze (np. w `xev`) należy zrestartować odbiornik podczerwieni lub X serwer.
 Restart odbiornika `rc0` można także zasymulować poleceniem `udevadm trigger --action=change /sys/class/rc/rc0`.
 Wynika to z tego ze X serwer ogranicza się do obsługi eventów odczytanych na starcie z /dev/input/event* jako obsługiwane przez dane urządzenie. Zobacz wynik polecenia `evtest` na urządzeniu `/dev/input/event` związanym z danym odbiornikiem podczerwieni.
 
