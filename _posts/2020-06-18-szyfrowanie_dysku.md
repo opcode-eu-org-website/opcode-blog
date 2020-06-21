@@ -110,10 +110,12 @@ Automatyczne wykrywanie takiego systemu w ramach `update-grub` najprawdopodobnie
 Można to rozwiązać dodając np. plik `/etc/grub.d/13_linux_secure` który utworzy w `grub.cfg` wpisy pozwalające na bootowanie systemu z zaszyfrowanego urządzenia.
 Plik ten powinien mieć prawo wykonywalności i być np. postaci:
 
-	#! /bin/sh
+	#! /bin/bash
 	set -e
 	
 	. /etc/grub.d/13_linux_secure.conf
+	
+	CRYPT_UUID=${CRYPT_UUID//-/}
 	
 	cat << EOF
 	menuentry 'Debian GNU/Linux SECURE' --class debian --class gnu-linux --class gnu --class os \$menuentry_id_option 'gnulinux-simple-$ROOTFS_UUID' {
