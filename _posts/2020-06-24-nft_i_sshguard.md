@@ -10,7 +10,8 @@ tags:
 *sshguard* służy blokowaniu ataków siłowych na ssh i inne usługi.
 Jego działanie polega na bieżącej analizie logów systemowych w poszukiwaniu (zbyt częstych) prób nieautoryzowanego dostępu i generowaniu reguł firewalla blokujących adresy IP z których pochodzi atak.
 
-W przypadku wersji &lt; 2.0 i używania go wraz z *iptables* możliwe było konfigurowanie na poziomie samego firewalla dla jakich połączeń chcemy stosować wygenerowane poprzez ustawienie `ENABLE_FIREWALL=0` w `/etc/default/sshguard` i samodzielne kierowanie ruchu, który chcemy filtrować do  łańcucha `sshguard`.
+W przypadku wersji &lt; 2.0 i używania go wraz z *iptables* możliwe było konfigurowanie na poziomie samego firewalla dla jakich połączeń chcemy stosować wygenerowane blokady.
+W tym celu należało ustawić `ENABLE_FIREWALL=0` w `/etc/default/sshguard` i samodzielne kierować ruch, który chcemy filtrować, do łańcucha `sshguard`.
 
 Wersja 2.3 dostarczanej wraz z Debian Buster domyślnie wykorzystuje *nftables* tworząc łańcuchy z priorytetem -10 na których odbywa się blokowanie całego ruchu pochodzącego z atakujących adresów.
 Rozwiązanie takie umożliwia łatwe i pewne uruchomienie usługi *sshguard* bez ingerencji w (standardowe) konfiguracje firewalla, jednak utrudnia bardziej zaawansowane ustawienia (np. ograniczenie działania blokad *sshguard* tylko do nowych połączeń ssh).
@@ -88,5 +89,7 @@ Skrypt konfiguracyjny *nftables* tworzący takie set'y oraz używający ich do f
 			type ipv4_addr; flags interval
 		}
 	}
+
+Wyłączenie reguł związanych z obsługą listy adresów niepodlegających filtracji przez reguły *sshguard*, blokowaniem połączeń z adresów dodanych przez *sshguard* oraz akceptacją pozostałych połączeń do osobnego łańcucha `sshguard` ma na celu jedynie zwiększenie czytelności i uniknięcie powtarzania w każdej z tych reguł `tcp dport ssh`.
 
 Więcej o *nftables* w [TCP/IP &amp; Ethernet](http://www.opcode.eu.org/Sieci.pdf).
