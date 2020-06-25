@@ -4,6 +4,7 @@ title: Szyfrowanie dysków w Linuxie
 author: Robert Paciorek
 tags:
 - debian
+- kryptografia
 ---
 
 Szyfrowanie jest kolejną warstwą znajdującą się gdzieś pomiędzy abstrakcyjnym obiektem jakim jest plik wraz z zawartymi w nim danymi a dane fizycznie umieszczone gdzieś na dysku twardym lub innym nośniku.
