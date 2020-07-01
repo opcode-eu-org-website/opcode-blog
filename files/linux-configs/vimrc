@@ -1,0 +1,146 @@
+" Copyright (c) 2012-2020 Robert Ryszard Paciorek <rrp@opcode.eu.org>
+" 
+" MIT License
+" 
+" Permission is hereby granted, free of charge, to any person obtaining a copy
+" of this software and associated documentation files (the "Software"), to deal
+" in the Software without restriction, including without limitation the rights
+" to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+" copies of the Software, and to permit persons to whom the Software is
+" furnished to do so, subject to the following conditions:
+" 
+" The above copyright notice and this permission notice shall be included in all
+" copies or substantial portions of the Software.
+" 
+" THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+" IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+" FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+" AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+" LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+" OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+" SOFTWARE.
+
+" wlaczamy pluginy z ~/.vim/plugins/ ...
+source ~/.vim/plugins/*
+
+if $TERM == "xterm-256color" || $TERM == "screen-256color"
+  set t_Co=256
+endif
+
+" screen'a czy tez tmux'a obslugujemy jak xterma
+if $TERM == "xterm-256color" || $TERM == "screen-256color" || $TERM == "screen"
+  set term=xterm
+endif
+
+" ustawiamy tytuł okna
+set title titlestring=%t%(\ %M%)%(\ (%{expand(\"%:~:.:h\")})%)%(\ %a%)
+
+" uzywamy vim'a a nie vi
+set nocompatible
+
+" rozmiar historii trybu komend
+set history=50
+
+" zazwyczaj uzywamy ciemnego tla
+set background=dark
+
+" podświetlanie składni, automatyczne formatowanie + opcjonalne wyłączenie
+syntax on
+
+" automatyczne kontynuowanie wciec
+set autoindent
+
+" robienie wcięc związanych z klamerkami itp
+set smartindent
+
+" automatyczne kontynuowanie komentarzy
+set formatoptions+=r
+set formatoptions+=o
+
+" listy numerowane
+set formatoptions+=n
+
+" przełączanie trybu paste poprzez F2 (wyłacza autoformatowanie ... wygodne przy wklejaniu via terminal)
+set pastetoggle=<F2>
+
+" ustawienia zwijania kodu (operowanie zc zo zR ... patrz :help folding)
+set foldmethod=indent " zawijanie oparte na wcieciach
+set nofoldenable      " zawijanie sterowane tylko manualnie
+set foldnestmax=10
+set foldlevel=1
+
+
+" poprawne strzałki itp w Solarisach
+if &term != 'xterm' 
+	set term=linux 
+
+	func Backspace()
+	if col('.') == 1
+		if line('.')  != 1
+		return  "\<ESC>kJ\<Del>i"
+		else
+		return ""
+		endif
+	else
+		return "\<Left>\<Del>"
+	endif
+	endfunc
+
+	inoremap <BS> <c-r>=Backspace()<CR>
+
+	" :map OD <Right>
+	" :map OC <Left>
+	" :map OB <Down>
+	" :map OA <Up>
+endif
+
+" nawigowanie po lamanych liniach jak po zwyklych
+nnoremap j gj
+nnoremap k gk
+vnoremap j gj
+vnoremap k gk
+nnoremap <Down> gj
+nnoremap <Up> gk
+vnoremap <Down> gj
+vnoremap <Up> gk
+inoremap <Down> <C-o>gj
+inoremap <Up> <C-o>gk
+
+" pokazywanie zlamania przy pomocy wsunietego +
+"set showbreak=\ +\ 
+" pokazywanie numerow linii
+set number
+
+" wiekszy bufor - sprawniej dziala ..
+" set wh=250
+
+" teraz to mi juz nie potrzebne, ale czasem jednak się przydaje ....
+" set nowrap
+
+" Ustawia uzupełnianie w linii poleceń. Dzięki temu <Tab> zawsze wyświetli
+" listę możliwości a nie jedną wartość naraz
+set wildmode=longest,list
+set wildmenu
+
+" Włączona obsługa myszy ... aby mysz była obsługiwana przez xterm'a (np. kopiowanie do schowaka x-ów) należy używać jej z shiftem
+set mouse=a
+
+" Synchronizacja domyślnego rejestru (operacjie yy, dd, ..., środkowy przycisk myszy) z schowkiem (zaznaczeniem) X'ów
+" wymaga to vim'a skompilowanego z xterm_clipboard (np. paczka vim-gtk)
+set go=
+set clipboard=unnamed
+
+" :p przełącza do poprzedniego pliku a nie robi :print
+" wymaga https://www.vim.org/scripts/script.php?script_id=746
+:Alias p previous
+" :com P previous
+
+" Ta autokomenda umieści kursor tam gdzie był ostatnio w pliku
+autocmd BufReadPost *
+    \ if line("'\"") > 0 && line("'\"") <= line("$") |
+    \   exe "normal g`\"" |
+    \ endif
+
+" Linia statusu ma być zawsze pokazywana
+set laststatus=2
+

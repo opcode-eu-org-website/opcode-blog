@@ -189,3 +189,15 @@ p {
 .post pre code {
 	border: none;
 }
+
+.post .key {
+	border: 1px solid #ddd;
+	background-color: #eee;
+	padding: 0.25em;
+	border-radius: 6px;
+	font-family: monospace;
+}
+
+.red {
+	color: red;
+}

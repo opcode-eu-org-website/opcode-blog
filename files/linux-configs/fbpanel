@@ -1,0 +1,309 @@
+Global {
+    edge = bottom
+    allign = center
+    margin = 48
+    widthtype = pixel
+    width = 1824
+    height = 52
+    transparent = true
+    tintcolor = black
+    alpha = 77
+    setdocktype = true
+    setpartialstrut = true
+    autohide = false
+    heightWhenHidden = 2
+    roundcorners = true
+    roundcornersradius = 7
+    layer = above
+    MaxElemHeight = 24
+    setlayer = false
+}
+Plugin {
+    type = space
+    config {
+        size = 2
+    }
+}
+Plugin {
+    type = menu
+    config {
+        image = /usr/share/pixmaps/debian-logo.png
+        IconSize = 22
+        menu {
+            name = Notatki
+            icon = fbpanel-notes
+            dir {
+                path = ~/NOTATKI
+                action = kwrite
+                UseDesktopFiles = true
+                URLaction = konqueror
+                EDITaction = kwrite
+                icon = fbpanel-notes-file
+                subdiricon = fbpanel-notes-subdir
+            }
+            separator {
+            }
+            item {
+                name = New entry
+                icon = 
+                action = sh -c "cd ~/NOTATKI; exec kwrite"
+            }
+        }
+        menu {
+            name = Zakładki
+            icon = fbpanel-bookmark
+            dir {
+                path = ~/BOOKMARKS
+                action = kwrite
+                UseDesktopFiles = true
+                URLaction = konqueror
+                EDITaction = kwrite
+                icon = fbpanel-bookmark-file
+                subdiricon = fbpanel-bookmark-subdir
+            }
+        }
+        separator {
+        }
+        menu {
+            name = Applications
+            icon = fbpanel-apps
+            systemmenu {
+            }
+        }
+        item {
+            name = Terminal
+            icon = fbpanel-terminal
+            action = xterm
+        }
+        separator {
+        }
+        menu {
+            name = Actions
+            icon = fbpanel-actions
+            item {
+                name = Shutdown
+                icon = fbpanel-halt
+                action = sudo shutdown -h now
+            }
+            item {
+                name = Reboot
+                icon = fbpanel-reboot
+                action = sudo shutdown -r now
+            }
+            separator {
+            }
+            item {
+                name = Disable Display
+                icon = fbpanel-screen-disable
+                action = xset dpms force off
+            }
+            item {
+                name = Lock Display
+                icon = fbpanel-screen-lock
+                action = slock
+            }
+            item {
+                name = logout
+                icon = fbpanel-logout
+                action = /usr/lib/fbpanel/fbpanel/xlogout
+            }
+            separator {
+            }
+            item {
+                name = Rebuild menu
+                icon = fbpanel-refresh
+                rebuildmenu = 
+            }
+        }
+        item {
+            name = Run command
+            icon = fbpanel-run
+            action = grun
+        }
+    }
+}
+Plugin {
+    type = runbox
+    config {
+        show = none
+        icon = fbpanel-run
+        HistorySize = 20
+        HistoryFile = ~/.config/fbpanel/run.history
+    }
+}
+Plugin {
+    type = space
+    config {
+        size = 10
+    }
+}
+Plugin {
+    type = launchbar
+    config {
+        button {
+            icon = fbpanel-konqueror
+            tooltip = Konqueror
+            action = konqueror.sh
+        }
+        button {
+            icon = fbpanel-iceweasel
+            tooltip = Firefox
+            action = firefox
+        }
+        button {
+            icon = fbpanel-text-editor
+            tooltip = Text Editor
+            action = kwrite
+        }
+        button {
+            icon = fbpanel-volume
+            tooltip = Volume Control
+            action = pavucontrol
+        }
+        button {
+            icon = fbpanel-calculator
+            tooltip = Calculator
+            action = xterm -e python3 -ic 'from math import *'
+        }
+        button {
+            icon = fbpanel-terminal
+            tooltip = Terminal
+            action = xterm
+        }
+        button {
+            icon = fbpanel-run
+            tooltip = Run ...
+            action = grun
+        }
+    }
+}
+Plugin {
+    type = space
+    config {
+        size = 10
+    }
+}
+Plugin {
+    type = pager
+    config {
+        showwallpaper = true
+        ShowNamesInPager = true
+        ShowNamesInTooltip = true
+        NamesHeight = 12
+        NamesFmt = <span color="black" font="7">%s</span>
+        NamesBackgroundNormal = #cccccc
+        NamesBackgroundActive = #808080
+        ShowIcon = true
+        IconSize = 24
+        IconMinSize = 8
+    }
+}
+Plugin {
+    type = space
+    config {
+        size = 10
+    }
+}
+Plugin {
+    type = taskbar
+    expand = true
+    config {
+        ShowIconified = true
+        ShowMapped = true
+        ShowAllDesks = false
+        tooltips = true
+        IconsOnly = false
+        MaxTaskWidth = 150
+    }
+}
+Plugin {
+    type = space
+    config {
+        size = 10
+    }
+}
+Plugin {
+    type = mem2
+    config {
+        MemColor = #990000
+    }
+}
+Plugin {
+    type = cpu
+    config {
+        Color = green
+    }
+}
+Plugin {
+    type = net
+    expand = false
+    padding = 0
+    config {
+        interface = enp1s0
+        TxLimit = 20
+        RxLimit = 190
+        TxColor = violet
+        RxColor = blue
+    }
+}
+Plugin {
+    type = space
+    config {
+        size = 5
+    }
+}
+Plugin {
+    type = clip
+    config {
+        icon = fbpanel-clip
+        HistorySize = 40
+        SaveFullHistory = false
+        HistoryFile = ~/.config/fbpanel/clip.history
+    }
+}
+Plugin {
+    type = space
+    config {
+        size = 5
+    }
+}
+Plugin {
+    type = tray
+}
+Plugin {
+    type = space
+    config {
+        size = 5
+    }
+}
+Plugin {
+    type = vbox
+    config {
+        Plugin {
+            type = tclock
+            config {
+                ClockFmt = <span color="#ffffff"><span font="Mono 10"><b>%T %Z</b></span>%n<span font="Mono 7"><b>%F</b></span></span>
+                TooltipFmt = %A, %u day of %V week%n%j day of year, %B%ntimezone offset: %z
+                ShowCalendar = true
+                ShowTooltip = true
+                ZoneNum = 2
+                TimeZone0 = Europe/Warsaw
+                Locale0 = pl_PL.UTF-8
+                TimeZone1 = UTC
+                Locale1 = C
+            }
+        }
+        Plugin {
+            type = tclock
+            config {
+                ClockFmt = <span color="#ffffff" font="Mono 6">%F %T%n%s UNIX</span>
+                TooltipFmt = %A, %u day of %V week%n%j day of year, %B%ntimezone offset: %z
+                ShowCalendar = true
+                ShowTooltip = true
+                ZoneNum = 1
+                TimeZone0 = UTC
+                Locale0 = C
+            }
+        }
+    }
+}

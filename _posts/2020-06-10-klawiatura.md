@@ -33,9 +33,9 @@ Warto zauważyć że nazwy typu `KEY_Y` są prawdziwe dla układu klawiatury QWE
 
 Kolejnym etapem jest mapowanie *keycode* (wraz z obecnymi przy nim modyfikatorami) na znak (lub ciąg znaków, bądź modyfikator), który ma być wprowadzany przy jego pomocy.
 To na tym etapie ustalane jest że np. `keycode == 2` będzie normalnie wprowadzał znak `1`, a z modyfikatorem *shift* będzie wprowadzał znak `!`.
-To również na tym etapie ustalane jest że np. `keycode == 42` będzie oznaczał modyfikator `shift`.
+To również na tym etapie ustalane jest że np. `keycode == 42` będzie oznaczał modyfikator *shift*.
 
-Warto wspomnieć, iż klawiszom nie mapowanym na znak drukowany lub sterujący ASCII (np. strzałki, F1, F12) przypisywany jest ciąg znaków rozpoczynający się od bajtu 0x1B (escape, zapisywany wizualnie niekiedy jako `^[`). Na przykład strzałka w górę zostanie zamieniona na sekwencję 3 bajtów: 0x1B 0x5B 0x41, czyli `^[[A`. Niektóre z programów nie rozumieją sekwencji związanych z niektórymi klawiszami (np. strzałkami) i wypisują je na ekran w postaci np. `^[[A`. Sekwencję taka można także wprowadzić naciskając jako `Ctrl`+`[`, `[`, `A` i zostanie ona zrozumiana przez wiele programów jako strzałka w górę (wyjątkiem mogą być programy obsługujące terminal w bardziej zaawansowany sposób np. poprzez *ncurses*).
+Warto wspomnieć, iż klawiszom nie mapowanym na znak drukowany lub sterujący ASCII (np. strzałki, F1, F12) przypisywany jest ciąg znaków rozpoczynający się od bajtu 0x1B (escape, zapisywany wizualnie niekiedy jako `^[`). Na przykład strzałka w górę zostanie zamieniona na sekwencję 3 bajtów: 0x1B 0x5B 0x41, czyli `^[[A`. Niektóre z programów nie rozumieją sekwencji związanych z niektórymi klawiszami (np. strzałkami) i wypisują je na ekran w postaci np. `^[[A`. Sekwencję taka można także wprowadzić naciskając jako <span class="key">Ctrl</span>+<span class="key">[</span>, <span class="key">[</span>, <span class="key">A</span> i zostanie ona zrozumiana przez wiele programów jako strzałka w górę (wyjątkiem mogą być programy obsługujące terminal w bardziej zaawansowany sposób np. poprzez *ncurses*).
 
 Na tym etapie rozchodzi się także konfiguracja klawiatury na potrzeby konsoli tekstowej i X serwera.
 Warto tu zauważyć, że X serwer operuje na wartościach *keycode* zwiększonych o 8, a konsola tekstowa bezpośrednio na wartościach *keycode*.
@@ -120,6 +120,7 @@ Klawisz komponujący potrafi używać indywidualnej mapy dla użytkownika umiesz
 Biblioteka Xów dostarcza też możliwość odwrotnego mapowania *keysym* → *keycode* przy użyciu funkcji `XKeysymToKeycode`.
 Należy pamiętać że mapowanie w tą stronę może nie być jednoznaczne (kilka różnych wartości *keycode* może wskazywać na ten sam *keysym*).
 W takim przypadku funkcja ta może zwrócić inną wartość *keycode* niż powiększona o 8 wartość otrzymana z jądra – widać to np. w wyniku polecenia `xev` przy klawiaturze mającej skonfigurowaną kropkę na klawiaturze numerycznej:
+
 	state 0x10, keycode 91 (keysym 0xffae, KP_Decimal), same_screen YES,
 	XKeysymToKeycode returns keycode: 129
 	XLookupString gives 1 bytes: (2e) "."

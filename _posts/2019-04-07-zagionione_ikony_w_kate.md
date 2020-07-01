@@ -5,6 +5,7 @@ author: Robert Paciorek
 tags:
 - debian
 - kde
+- x11
 ---
 
 Jeżeli nie używamy żadnego dużego środowiska graficznego, ale zdecydowaliśmy się na korzystanie z jakiś aplikacji KDE (np. kate),

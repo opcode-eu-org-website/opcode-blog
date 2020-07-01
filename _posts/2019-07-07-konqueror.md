@@ -5,6 +5,7 @@ author: Robert Paciorek
 tags:
 - debian
 - kde
+- x11
 ---
 
 Konqueror jest przeglądarką WWW i zaawansowanym menagerem plików dostępnym w środowisku KDE. Może być jednak używany także jako samodzielna aplikacja.

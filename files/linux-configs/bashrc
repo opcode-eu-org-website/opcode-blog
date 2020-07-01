@@ -1,0 +1,276 @@
+## Copyright (c) 2003-2020 Robert Ryszard Paciorek <rrp@opcode.eu.org>
+## 
+## MIT License
+## 
+## Permission is hereby granted, free of charge, to any person obtaining a copy
+## of this software and associated documentation files (the "Software"), to deal
+## in the Software without restriction, including without limitation the rights
+## to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+## copies of the Software, and to permit persons to whom the Software is
+## furnished to do so, subject to the following conditions:
+## 
+## The above copyright notice and this permission notice shall be included in all
+## copies or substantial portions of the Software.
+## 
+## THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+## IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+## FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+## AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+## LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+## OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+## SOFTWARE.
+
+#
+# ustawienia ogólne
+#
+
+# domyślne uprawnienia plików
+umask 0022
+
+
+# ustawienie locali
+{
+	export LANG="pl_PL.UTF-8"     # ustawienie ogólne - polski
+	export LC_TIME="en_DK.UTF-8"  # format wyświetlania daty zgodny z ISO 8601 (np. w wyniku `date +%c`)
+	export LC_COLLATE="C.UTF-8"   # sortowanie w stylu C
+	export LC_NUMERIC="C.UTF-8"   # separator dziesiętny w stylu C (kropka)
+	export TZ=UTC                 # strefa czasowa UTC (można podać też np. Europe/Warsaw)
+} 2> /dev/null
+
+# sprawdzenie dostępności ustawionych locali i ew. powrót do C.UTF-8
+perl -e exit |& grep 'Setting locale failed' >& /dev/null && export LC_ALL=C.UTF-8;
+
+
+# ścieżki
+[ -d $HOME/.tex ] && export TEXINPUTS=".:$HOME/.tex:"
+[ -d $HOME/.bin ] && export PATH=$HOME/.bin:"${PATH}"
+
+
+#
+# jeżeli nie interaktywna to nie przetwarzamy dalszej części pliku
+#
+if [ -z "$PS1" ]; then
+	return
+fi
+
+
+#
+# wywolanie tmux'a gdy bash odpalony z emulatora terminala lub terminala
+#
+
+if [ "$TERM" = "xterm" ]; then
+	export TERM=xterm-256color
+fi
+
+exec_tmux_choose_session() {
+	if ! (which whiptail >& /dev/null && which tmux >& /dev/null); then
+		return
+	fi
+	if sesions=`tmux list-sessions 2> /dev/null`; then
+		TMP_FILE=`mktemp /tmp/tmux_choose_session.XXXXX`
+
+		sesions=`echo "$sesions" | tr -d '"'"'" | sed -e 's#^\([A-Za-z0-9]*\): #\1 "#' -e 's#$#"#'`
+		dialog_opt1='--menu "tmux is running - choose tmux session:" 0 0 0 _NEW_SES_ "start new tmux sesion" _NO_TMUX_ "start shell instand tmux"'
+		dialog_opt2=''
+		eval whiptail $dialog_opt1 $sesions $dialog_opt2 2> "$TMP_FILE"
+
+		session=`cat "$TMP_FILE"`
+		rm -f "$TMP_FILE"
+
+		case $session in
+			_NEW_SES_)
+				exec tmux
+				;;
+			_NO_TMUX_)
+				unset sesions TMP_FILE dialog_opt1 dialog_opt2
+				clear
+				;;
+			*)
+				exec tmux attach-session -t $session
+				;;
+		esac
+	else
+		exec tmux
+	fi
+}
+
+parent=`tr '\0' '\n' < /proc/$PPID/cmdline | head -n1`
+if echo $parent | egrep '^(xfce4-terminal|/usr/bin/xfce4-terminal|xterm|/usr/bin/xterm|/bin/login)' > /dev/null; then
+	exec_tmux_choose_session
+fi
+
+
+#
+# lepsza obsługa schroot
+#
+
+
+getChrootDir() {
+	CHROOT=$1
+	NEW_ROOT=`/usr/bin/schroot --config -c $CHROOT | grep ^directory= | cut -f2- -d=`
+	NEW_PWD=${PWD#"$NEW_ROOT"};
+	
+	if [ "${NEW_ROOT}${NEW_PWD}" = "$PWD" ]; then
+		# $PWD is inside $NEW_ROOT, so use $NEW_PWD
+		echo "$NEW_PWD";
+	elif /usr/bin/schroot --run-session -c $CHROOT -d / -- test -e "$PWD"; then
+		# $PWD is available inside chroot, so use $PWD
+		echo "$PWD";
+	else
+		# otherwise use $HOME
+		echo "$HOME";
+	fi;
+}
+
+schroot() {
+	if [ $# -lt 1 ]; then
+		echo "USAGE: $0 chrootName [commands]"
+		return
+	fi
+	
+	CHROOT=$1
+	shift
+	CHROOT_DIR=`getChrootDir $CHROOT`
+	
+	if [ $# -gt 0 ]; then
+		echo "run \"$@\" in $CHROOT_DIR on $CHROOT"
+	fi
+	
+	/usr/bin/schroot --run-session -c $CHROOT -d $CHROOT_DIR -- "$@"
+	chroot_ret=$?
+	
+	if [ $chroot_ret -ne 0 ]; then
+		echo "for real schroot command run /usr/bin/schroot" > /dev/stderr
+		return $chroot_ret
+	fi
+	
+	return 0
+}
+
+#
+# konfiguracja basha
+#
+
+# znak zachęty itp w zależności od terminala
+case $TERM in
+	# kolorowany znak zachęty i tytuł okna w xtermach
+	xterm*|screen*)
+		PS1='\[\033[01;31m\]\u@\H${debian_chroot:+\[\033[01;33m\]>$debian_chroot}\[\033[0m\]:\[\033[01;36m\]\w\[\033[0m\]\$ '
+		PROMPT_COMMAND='echo -ne "\033]0;${USER}@${HOSTNAME}${debian_chroot:+ ($debian_chroot)}:${PWD/${HOME}/~}\007"'
+		;;
+	# zwykły znak zachęty w pozostałych terminalach
+	*)
+		PS1='\u@\H${debian_chroot:+ ($debian_chroot)}:\w\$ '
+		;;
+esac
+
+# ignorowanie powtórzeń oraz wybranych komend w historii
+HISTIGNORE="&:ls:[bf]g:cd:exit:kill *:history*"
+
+# ignorowanie duplikatów, czyszczenie powtórzeń oraz ignorowanie poleceń rozpoczynających się spacją
+HISTCONTROL=ignoredups:erasedups:ignorespace
+
+# ilość poleceń w pliku historii
+HISTSIZE=2000
+
+# dopisywanie do pliku historii po każdej komendzie
+PROMPT_COMMAND="history -a; $PROMPT_COMMAND"
+
+# dopisywanie do pliku historii wraz z czyszczeniem z duplikatów przy kończeniu powłoki
+history_clean() {
+	if mkdir /dev/shm/bash_${USER}_history.lock; then
+		
+		NEWHISTORY=`mktemp /dev/shm/history.tmp.XXXXXXXXX`;
+		tac $HISTFILE | awk '! x[$0]++ {print $0}' | tac > $NEWHISTORY
+		\mv $NEWHISTORY $HISTFILE;
+		
+		rmdir /dev/shm/bash_${USER}_history.lock;
+	fi
+}
+trap history_clean EXIT
+
+# backup pliku historii
+cp $HISTFILE ~/.bash_history.bck.`date +%u`
+
+# zaawansowane autouzupełnianie
+[ -f /etc/bash_completion ] && . /etc/bash_completion
+
+# sprawdzanie rozmiaru okna po każdej komendzie
+shopt -s checkwinsize
+
+
+#
+# zmienne środowiskowe i aliasy
+#
+
+# edytor
+if [ -x `which vim` ]; then
+	alias vi="vim"
+	export EDITOR=vim
+else
+	export EDITOR=vi
+fi
+
+
+# kolorowanie
+if [ "$TERM" != "dumb" ]; then
+	eval `dircolors -b`
+	alias ls="ls --color=auto --time-style=+\" %Y-%m-%d %H:%M:%S \" -h"
+	alias grep='grep --color'
+	alias egrep='egrep --color'
+fi
+
+
+# wyszukiwanie i zastępowanie
+rgrep() { grep -R "$@" .; }
+regrep() { egrep -R "$@" .; }
+rreplace() {
+	if [ $# -ne 2 ]; then
+		echo USAGE: $1 str1 str2
+		return
+	fi
+	\grep -R "$1" . | cut -f 1 -d: | uniq | while read f; do
+		[ -L $f ] || sed -e "s#$1#$2#g" -i $f;
+	done;
+}
+replace() {
+	if [ $# -lt 3 ]; then
+		echo USAGE: $1 str1 str2 files
+		return
+	fi
+	a=$1
+	b=$2
+	shift 2
+	\grep "$a" "$@" | cut -f 1 -d: | uniq | while read f; do
+		[ -L $f ] || sed -e "s#$a#$b#g" -i $f;
+	done;
+}
+
+
+# cp, mv, rm pytają o usuwanie/nadpisywanie plików
+alias 'cp'="cp -i"
+alias 'mv'="mv -i"
+alias 'rm'="rm -i"
+
+# wyłączenie zapisywania historii
+alias 'history_stop'='HISTFILE=/dev/null'
+
+# bc operuje na zmiennoprzecinkowych
+alias 'bc'='bc -l'
+
+# preformatowane info o czasie i dacie
+alias 'date_iso'='date +"%A,  %Y-%m-%d %H:%M:%S %z (%Z)%n time stamp: %s"'
+alias 'date_iso_utc'='date_iso --utc'
+
+# inne
+alias "y"="youtube-dl -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4'"
+alias sigrok=pulseview
+
+
+#
+# ustawienia lokalne - finalizujące
+#
+
+if [ -f "$HOME/.bashrc.local" ]; then
+	. "$HOME/.bashrc.local"
+fi
