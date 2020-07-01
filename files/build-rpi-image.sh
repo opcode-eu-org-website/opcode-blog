@@ -80,7 +80,7 @@ qemu-debootstrap --no-check-gpg --arch armhf ${relesae} ${mountdir} ${mirror}
 logWrite "configure apt and lang on target system"
 echo 'LANG="C.UTF-8"' > ${mountdir}/etc/default/locale;
 echo 'set -a; . /etc/default/locale; set +a' > ${mountdir}/etc/profile.d/locale.sh
-echo 'perl -e exit 2>&1 | grep "Setting locale failed" 2>&1 > /dev/null && export LC_ALL=C.UTF-8' >> ${mountdir}/etc/profile.d/locale.sh
+echo 'perl -e exit 2>&1 | grep "Setting locale failed" >/dev/null 2>&1 && export LC_ALL=C.UTF-8' >> ${mountdir}/etc/profile.d/locale.sh
 echo 'Apt::Install-Recommends "false";' > ${mountdir}/etc/apt/apt.conf.d/13norecommends
 
 logWrite "do general post install fix on target system"

@@ -38,7 +38,7 @@ umask 0022
 } 2> /dev/null
 
 # sprawdzenie dostępności ustawionych locali i ew. powrót do C.UTF-8
-perl -e exit |& grep 'Setting locale failed' >& /dev/null && export LC_ALL=C.UTF-8;
+perl -e exit 2>&1 | grep "Setting locale failed" > /dev/null 2>&1 && export LC_ALL=C.UTF-8;
 
 
 # ścieżki

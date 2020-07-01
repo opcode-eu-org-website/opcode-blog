@@ -26,7 +26,7 @@ Może tak się zdarzyć np. przy dostępie przez ssh, które ustawia te zmienną
 Aby się przed tym zabezpieczyć można w wspomnianym pliku /etc/profile.d/locale.sh dodać weryfikację poprawności ustawień i w razie potrzeby nadpisać je zmienną `LC_ALL`:
 
 	info=`perl -e exit 2>&1`
-	if echo "$info" | grep 'Setting locale failed' 2>&1 > /dev/null; then
+	if echo "$info" | grep 'Setting locale failed' >/dev/null 2>&1; then
 		if [ -n "$BASH_VERSION" -a -n "$PS1" ]; then
 			echo -n "Make \`export LC_ALL=$LANG\` due to missing some locales,"
 			echo    " your settings are:"
