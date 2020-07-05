@@ -38,7 +38,7 @@ Wiele z projektów i materiałów jednak nie straciło na aktualności i nadal j
 W 2017 roku swoją premię miał zalążek nowej wersji serwisu, czyli *vademecum informatyki praktycznej*.
 W 2019 roku *OpCode* został poddany dużej reorganizacji związanej z:
 
-* wydzieleniem części projektów postaci osobnych repozytoriów git,
+* wydzieleniem części projektów w postaci osobnych repozytoriów git,
 * skupieniem się głównej części serwisu na nie tracących zbyt szybko aktualności materiałach dydaktycznych,
   prezentowanych w postaci bardzo luźno powiązanych ze sobą artykułów w formatach pdf i/lub html,
 * stworzeniu bloga, którego celem jest prezentowanie różnego rodzaju porad użytkowych (które mogą relatywnie szybko stracić na aktualności) w postaci niezależnych, opatrzonych tagami tematycznymi i datą wpisów.
