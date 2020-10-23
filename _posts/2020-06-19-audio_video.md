@@ -24,13 +24,14 @@ Taka sama (lub bardzo podobna) składnia jak w *ffmpeg* działa także w *avconv
 
 	ffmpeg -i 'concat:PART1.mp4|PART2.mp4|PART3.mp4' -c copy OUT.mp4
 
-lub w oparciu o listę plików do połaczenia w postaci pliku:
+lub w oparciu o listę plików do połączenia w postaci pliku:
 
 	echo "file PART1.mp4" > aa.txt
 	echo "file PART2.mp4" >> aa.txt
 	echo "file PART3.mp4" >> aa.txt
 	ffmpeg -f concat -i aa.txt -c copy  OUT.mp4
 
+(uwaga: wersja z wykazem plików do połączenia w pliku, radzi sobie z większą ilością przypadków, m.in. z sytuacjami gdy na skutek pierwszego wariantu plik wynikowy zawiera dane tylko z pierwszego z plików)
 
 ## ffmpeg – ścieżka audio
 
