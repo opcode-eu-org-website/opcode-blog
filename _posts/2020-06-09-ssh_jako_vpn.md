@@ -69,3 +69,12 @@ Do ich tworzenia można skorzystać z polecenia:
 
 Zastosowanie urządzeń typu `tap` pozwala na bridgowanie takich urządzeń z innymi urządzeniami sieciowymi oraz przekazywanie przez nie pakietów warstw niższych niż IP (np. pakietów ARP).
 Pozwala to również na działanie programów / usług korzystających z L2 a nie z IP.
+
+### routing
+
+Sensowne użycie tunelowania z pomocą urządzeń tun wymaga odpowiedniej konfiguracji routingu.
+Na ogół konieczne będzie włączenie przekazywania pakietów na urządzeniu tun oraz na urządzeniu z siecią do której się dostajemy,
+  z użyciem wpisów do `/proc/sys/net/ipv*/conf/XXX/forwarding` (gdzie pod XXX określa odpowiednie urządzenia).
+Jeżeli serwer ssh nie jest bramką domyślną dla urządzeń w sieci do której chcemy się dostać (i nie możemy tam ustawić routingu na IP urządzenia tun po stronie klienta via serwer ssh) to przydatny może być użycie SNAT:
+  `iptables -t nat -A POSTROUTING -o XXX -s IP_KLIENTA -j SNAT --to IP_SERWERA_NA_XXX` (XXX oznacza urządzenie związane z siecią do której się tunelujemy).
+W przypadku łączności L2 (urządzenia tap) najprawdopodobniej routing nie będzie wystarczający i będziemy korzystać z linuxowego bridge'a.
