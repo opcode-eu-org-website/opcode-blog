@@ -1,0 +1,28 @@
+ORGMAIL=$HOME/MAIL/INBOX/
+DEFAULT=$HOME/MAIL/INBOX/
+UMASK=033
+VERBOSE=yes
+
+:0
+* ^Content-Type: *text/plain
+{
+	:0 fbw
+	* ^Content-Transfer-Encoding: *base64
+	| base64 -d
+	# base64 is in package   coreutils
+
+	:0 Afhw
+	| formail -I "Content-Transfer-Encoding: 8bit"
+
+	:0 fbw
+	* ^Content-Transfer-Encoding: *quoted-printable
+	| mewdecode -d -q
+	# mewdecode is in package mew-bin 
+
+	:0 Afhw
+	| formail -I "Content-Transfer-Encoding: 8bit"
+}
+
+INCLUDERC="$HOME/.procmailrc"
+INCLUDERC="$RCFILE"
+
