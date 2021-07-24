@@ -123,6 +123,10 @@ Obraz taki może być wyświetlony bezpośrednio przez tą instancję VLC lub tr
 	
 	/bin/rm $tmpfile
 
+### napisy pod filmem
+
+	vlc  --video-filter='croppadd{paddbottom=120}' --sub-margin=-10  $PLIK_VIDEO
+
 
 ## Polecane programy z repozytorium Debiana
 
