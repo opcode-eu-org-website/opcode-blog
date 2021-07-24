@@ -1,0 +1,583 @@
+\PassOptionsToPackage{unicode=true}{hyperref}
+\documentclass[aspectratio=169]{beamer} % 1610, 149, 54, 43 and 32
+%\documentclass[aspectratio=43]{beamer} % 1610, 149, 54, 43 and 32
+
+\usepackage{fontspec}
+\usepackage{fancyvrb, fvextra}
+\usepackage{xcolor, graphicx}
+
+% multilingual support
+\usepackage{polyglossia}
+\setdefaultlanguage{polish} % by default polish settings and names
+                            % only this, NOT \RequirePackage{polski} NOR \RequirePackage[polish]{babel}
+\setotherlanguages{english} % provide english language option too (for code printing)
+
+\usepackage[ampersand]{easylist}
+
+\usepackage{tikz}
+\usetikzlibrary{positioning} % for positionig nodes with `right = of X`
+\usetikzlibrary{arrows.meta, decorations.markings} % for arrows formating in tikzpicture
+\usetikzlibrary{shapes} % for elipse nodes
+
+\usetheme{CambridgeUS}
+\usecolortheme{dolphin}
+\setbeamertemplate{navigation symbols}{}
+
+\title[Redundancja systemów zasilania]{Redundancja systemów zasilania – czy są rozwiązania lepsze od 2N?}
+\author[Robert Paciorek]{Robert Paciorek\\ <rrp@opcode.eu.org>}
+\date{Kraków 2019-10-24
+%\\Konferencja ,,Data Center''
+}
+
+\begin{document}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\section{Podstawy zasilania serwerowni}
+
+\subsection{Zasilanie gwarantowane}
+
+\begin{frame}[fragile]
+\begin{easylist}[itemize]
+& system zasilania gwarantowanego
+&& czemu służy system zasilania gwarantowanego?
+&& jakie są jego główne komponenty?
+\end{easylist}
+\end{frame}
+
+\subsection{Redundancja}
+
+\begin{frame}[fragile]
+\begin{easylist}[itemize]
+& czym jest redundancja?
+
+& po co stosować redundancję?
+&& zwiększenie niezawodności systemu, z dopuszczeniem planowych i nieplanowych wyłączeń
+&& zapewnienie możliwości serwisowania bez wyłączeń
+&& zapewnienie odporności na dowolną (pojedynczą) awarię
+\end{easylist}
+\end{frame}
+
+
+\section{Typowe układy zasilania energetycznego serwerowni}
+
+\subsection{podstawowy układ zasilania}
+
+\begin{frame}
+\begin{center}\begin{tikzpicture}[-, node distance=1.4em, semithick]
+\tikzstyle{element}=[draw, minimum height=1.6em, minimum width=5em]
+
+\node[element] (UTL_A) {Linia ,,miejska''};
+\node[element] (SG_UTL_A) [below = of UTL_A] {Rozdzielnica dystrybucyjna};
+\node[element] (SERW)  [below = of SG_UTL_A] {Zasilanie serwerów};
+
+\draw (UTL_A) -- (SG_UTL_A);
+\draw (SG_UTL_A) -- (SERW);
+\end{tikzpicture}\end{center}
+\end{frame}
+
+\subsection{podstawowy układ zasilania}
+
+\begin{frame}
+\begin{center}\begin{tikzpicture}[-, node distance=1.4em, semithick]
+\tikzstyle{element}=[draw, minimum height=1.6em, minimum width=5em]
+
+\node[element] (UTL_A) {Linia ,,miejska''};
+\node[element] (SG_UTL_A) [below = of UTL_A] {Rozdzielnica wejściowa};
+\node[element] (UPS)  [below = of SG_UTL_A] {UPS};
+\node[element] (SG_UPS_A) [below = of UPS]   {Rozdzielnica dystrybucyjna};
+\node[element] (SERW)  [below = of SG_UPS_A] {Zasilanie serwerów};
+
+\draw (UTL_A) -- (SG_UTL_A);
+\draw (SG_UTL_A) -- (UPS);
+\draw (UPS) -- (SG_UPS_A);
+\draw (SG_UPS_A) -- (SERW);
+\end{tikzpicture}\end{center}
+\end{frame}
+
+\subsection{redundancja źródeł}
+
+\begin{frame}
+\begin{center}\begin{tikzpicture}[-, node distance=1.4em, semithick]
+\tikzstyle{element}=[draw, minimum height=1.6em, minimum width=5em]
+\tikzstyle{invisible}=[inner sep=0, outer sep = 0pt, minimum height=1.6em, minimum width=0]
+
+\node[element] (UTL_A) {Linia ,,miejska''};
+\node[invisible] (UTL) [right = 0.8em of UTL_A] {};
+\node[element] (UTL_B) [right = 0.8em of UTL] {???};
+\node[element] (ATS_UTL) [below = of UTL] {Samoczynne Załączenie Rezerwy};
+\node[element] (SG_UTL_A) [below = of ATS_UTL] {Rozdzielnica wejściowa};
+\node[element] (UPS)  [below = of SG_UTL_A] {UPS};
+\node[element] (SG_UPS_A) [below = of UPS]   {Rozdzielnica dystrybucyjna};
+\node[element] (SERW)  [below = of SG_UPS_A] {Zasilanie serwerów};
+
+\draw (UTL_A) |- (ATS_UTL.north);
+\draw (UTL_B) |- (ATS_UTL.north);
+\draw (ATS_UTL) -- (SG_UTL_A);
+\draw (SG_UTL_A) -- (UPS);
+\draw (UPS) -- (SG_UPS_A);
+\draw (SG_UPS_A) -- (SERW);
+\end{tikzpicture}\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{easylist}[itemize]
+& druga linia miejska czy agregat prądotwórczy?
+&& ekonomicznie zależy od lokalnych uwarunkowań (m.in. prawdopodobieństwa co najmniej kilkuminutowego równoczesnego zaniku obu linii)
+&& teoretycznie – agregat prądotwórczy
+\end{easylist}
+\end{frame}
+
+\subsection{TIER I}
+
+\begin{frame}
+\begin{center}\begin{tikzpicture}[-, node distance=1.4em, semithick]
+\tikzstyle{element}=[draw, minimum height=1.6em, minimum width=5em]
+\tikzstyle{invisible}=[inner sep=0, outer sep = 0pt, minimum height=1.6em, minimum width=0]
+
+\node[element] (UTL_A) {Linia ,,miejska''};
+\node[invisible] (UTL) [right = 0.8em of UTL_A] {};
+\node[element] (UTL_B) [right = 0.8em of UTL] {Generator};
+\node[element] (SG_UTL_A) [below = of UTL] {Rozdzielnica wejściowa z SZR};
+\node[element] (UPS)  [below = of SG_UTL_A] {UPS};
+\node[element] (SG_UPS_A) [below = of UPS]   {Rozdzielnica dystrybucyjna};
+\node[element] (SERW)  [below = of SG_UPS_A] {Zasilanie serwerów};
+
+\draw (UTL_A) |- (UTL_A |- SG_UTL_A.north);
+\draw (UTL_B) |- (UTL_B |- SG_UTL_A.north);
+\draw (SG_UTL_A) -- (UPS);
+\draw (UPS) -- (SG_UPS_A);
+\draw (SG_UPS_A) -- (SERW);
+\end{tikzpicture}\end{center}
+\end{frame}
+
+
+\subsection{Bypass}
+
+\begin{frame}
+\begin{center}\begin{tikzpicture}[-, node distance=1.4em, semithick]
+\tikzstyle{element}=[draw, minimum height=1.6em, minimum width=5em]
+\tikzstyle{invisible}=[inner sep=0, outer sep = 0pt, minimum height=1.6em, minimum width=0]
+
+\node[element] (UTL_A) {Linia ,,miejska''};
+\node[invisible] (UTL) [right = 0.8em of UTL_A] {};
+\node[element] (UTL_B) [right = 0.8em of UTL] {Generator};
+\node[element] (SG_UTL_A) [below = of UTL] {Rozdzielnica wejściowa z SZR};
+\node[element] (UPS)  [below = of SG_UTL_A] {UPS};
+\node[element] (SG_UPS_A) [below = of UPS]   {Rozdzielnica dystrybucyjna};
+\node[element] (SERW)  [below = of SG_UPS_A] {Zasilanie serwerów};
+
+\draw (UTL_A) |- (UTL_A |- SG_UTL_A.north);
+\draw (UTL_B) |- (UTL_B |- SG_UTL_A.north);
+\draw (SG_UTL_A) -- (UPS);
+\draw (UPS) -- (SG_UPS_A);
+\node[invisible, minimum height=0, right = 0.9em of SG_UTL_A] (UPSby) {};
+\draw[dashed] (SG_UTL_A) -| (UPSby); \draw[dashed] (UPSby) |- (SG_UPS_A);
+\draw (SG_UPS_A) -- (SERW);
+\end{tikzpicture}\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{easylist}[itemize]
+& zewnętrzny bypass pozwala na serwisowanie UPSów
+&& nie zapewniają one w trakcie tych prac pewności zasilania
+&& w tym celu można skorzystać z agregatu prądotwórczego
+\end{easylist}
+\end{frame}
+
+\subsection{TIER II}
+
+% który z elementów w torze najbardziej zawodny? -> nadmiarowość UPS
+
+\begin{frame}
+\begin{center}\begin{tikzpicture}[-, node distance=1.4em, semithick]
+\tikzstyle{element}=[draw, minimum height=1.6em, minimum width=5em]
+\tikzstyle{invisible}=[inner sep=0, outer sep = 0pt, minimum height=1.6em, minimum width=0]
+
+\node[element] (UTL_A) {Linia ,,miejska''};
+\node[invisible] (UTL) [right = 0.8em of UTL_A] {};
+\node[element] (UTL_B) [right = 0.8em of UTL] {Generator (N+1)};
+\node[element] (SG_UTL_A) [below = of UTL] {Rozdzielnica wejściowa z SZR};
+\node[element] (UPS)  [below = of SG_UTL_A] {UPS (N+1)};
+\node[element] (SG_UPS_A) [below = of UPS]   {Rozdzielnica dystrybucyjna};
+\node[element] (SERW)  [below = of SG_UPS_A] {Zasilanie serwerów};
+
+\draw (UTL_A) |- (UTL_A |- SG_UTL_A.north);
+\draw (UTL_B) |- (UTL_B |- SG_UTL_A.north);
+\draw (SG_UTL_A) -- (UPS);
+\draw (UPS) -- (SG_UPS_A);
+\draw (SG_UPS_A) -- (SERW);
+\end{tikzpicture}\end{center}
+\end{frame}
+
+
+
+\subsection{Zasilanie dwustronne}
+
+\begin{frame}[fragile]
+\begin{easylist}[itemize]
+& umożliwienie serwisowania elementów systemu wymaga nadmiarowości
+&& N+1 UPSów pozwala na wykonanie (bez przechodzenia na bypass) części (ale nie wszystkich) prac niemożliwych przy N UPSach
+&& wiele prac w torze zasilania (oraz eliminacja skutków niektórych awarii) wymaga drugiego toru zasilania
+& większość sprzętu IT pozwala na równoczesne zasilanie z dwóch źródeł
+& zapewnia to odporność na awarię jednego z zasilaczy w urządzeniu albo jednego ze źródeł
+\end{easylist}
+\end{frame}
+
+% serwery mają kilka zasilaczy -> strony -> czy strony z jednego źródła mają sens? -> serwisowo (rozbudowa rozdzielnicy, pomiary) TAK
+
+% \begin{frame}
+% \begin{center}\begin{tikzpicture}[-, node distance=1.4em, semithick]
+% \tikzstyle{element}=[draw, minimum height=1.6em, minimum width=5em]
+% \tikzstyle{invisible}=[inner sep=0, outer sep = 0pt, minimum height=1.6em, minimum width=0]
+% 
+% \node[element] (UTL_A) {Linia ,,miejska''};
+% \node[invisible] (UTL) [right = 0.8em of UTL_A] {};
+% \node[element] (UTL_B) [right = 0.8em of UTL] {Generator (N+1)};
+% \node[element] (SG_UTL_A) [below = of UTL] {Rozdzielnica wejściowa z SZR};
+% \node[element] (UPS)  [below = of SG_UTL_A] {UPS (N+1)};
+% \node[invisible] (SG_UPS) [below = of UPS]   {};
+% \node[element] (SG_UPS_A) [left = 0.7em of SG_UPS]   {Rozdzielnica dystrybucyjna ,,A''};
+% \node[element] (SG_UPS_B) [right = 0.7em of SG_UPS]   {Rozdzielnica dystrybucyjna ,,B''};
+% \node[element] (SERW)  [below = of SG_UPS] {Zasilanie serwerów};
+% 
+% \draw (UTL_A) |- (UTL_A |- SG_UTL_A.north);
+% \draw (UTL_B) |- (UTL_B |- SG_UTL_A.north);
+% \draw (SG_UTL_A) -- (UPS);
+% \draw (UPS) -- (SG_UPS.center);
+% \draw[dashed] (SG_UTL_A) -| (SG_UPS_A);
+% \draw[dashed] (SG_UTL_A) -| (SG_UPS_B);
+% \draw (SG_UPS.center) -- (SG_UPS_A);
+% \draw (SG_UPS.center) -- (SG_UPS_B);
+% \draw (SG_UPS_A) |- (SERW);
+% \draw (SG_UPS_B) |- (SERW);
+% \end{tikzpicture}\end{center}
+% \end{frame}
+
+\subsection{TIER III}
+
+% prawdziwe strony zasilania -> powielamy układ, ale czy w całości?
+% 	-> współdzielony agregat
+% 	-> drugi tor bez UPSa (czy ma sens? -> uodparniamy się na awarię UPSa, umożliwiamy pełniejszy serwis niż przy pomocy bypassu)
+% 	-> pełny drugi tor => 2N
+
+\begin{frame}
+\begin{center}\begin{tikzpicture}[-, node distance=1.4em, semithick]
+\tikzstyle{element}=[draw, minimum height=1.6em, minimum width=5em]
+\tikzstyle{invisible}=[inner sep=0, outer sep = 0pt, minimum height=1.6em, minimum width=0]
+
+\node[element] (UTL) {Linia ,,miejska''};
+\node[element] (GEN) [below = of UTL] {Generator (N+1)};
+
+\node[invisible] (inv4) [left = 4em of GEN]   {};
+\node[invisible] (inv3) [right = 4em of GEN]   {};
+
+\node[element,align=center] (SG_UTL_A) [below = of inv4] {Rozdzielnica\\ wejściowa ,,A'' z SZR};
+\node[element,align=center] (SG_UTL_B) [below = of inv3] {Rozdzielnica\\ wejściowa ,,B'' z SZR};
+
+\node[element] (UPS_A)  [below = of SG_UTL_A] {UPS (N+1)};
+\node[element] (SG_UPS_A) [below = of UPS_A]   {Rozdzielnica dystrybucyjna ,,A''};
+\node[element] (SG_UPS_B) [] at (SG_UTL_B |- SG_UPS_A)   {Rozdzielnica dystrybucyjna ,,B''};
+\node[invisible] (inv1) [below = of SG_UPS_A]   {};
+\node[element] (SERW)  [] at (inv1 -| UTL) {Zasilanie serwerów};
+
+\draw (UTL) -| (SG_UTL_A);
+\draw (UTL) -| (SG_UTL_B);
+\draw (GEN.-110) |- (SG_UTL_A);
+\draw (GEN.-70)  |- (SG_UTL_B);
+
+\draw (SG_UTL_A) -- (UPS_A);
+\draw (UPS_A) -- (SG_UPS_A);
+\draw (SG_UTL_B) -- (SG_UPS_B);
+\draw (SG_UPS_A) |- (SERW);
+\draw (SG_UPS_B) |- (SERW);
+\end{tikzpicture}\end{center}
+\end{frame}
+
+\subsection{TIER IV}
+
+
+\begin{frame}
+\begin{center}\begin{tikzpicture}[-, node distance=1.4em, semithick]
+\tikzstyle{element}=[draw, minimum height=1.6em, minimum width=5em]
+\tikzstyle{invisible}=[inner sep=0, outer sep = 0pt, minimum height=1.6em, minimum width=0]
+
+\node[element] (GEN_A){Generator ,,A''};
+\node[element] (UTL) [right = of GEN_A] {Linia ,,miejska''};
+\node[element] (GEN_B) [right = of UTL] {Generator ,,B''};
+
+\node[element,align=center] (SG_UTL_A) [below = of GEN_A] {Rozdzielnica\\ wejściowa ,,A'' z SZR};
+\node[element,align=center] (SG_UTL_B) [below = of GEN_B] {Rozdzielnica\\ wejściowa ,,B'' z SZR};
+
+\node[element] (UPS_A)  [below = of SG_UTL_A] {UPS ,,A''};
+\node[element] (UPS_B)  [below = of SG_UTL_B] {UPS ,,B''};
+\node[element] (SG_UPS_A) [below = of UPS_A]   {Rozdzielnica dystrybucyjna ,,A''};
+\node[element] (SG_UPS_B) [below = of UPS_B]   {Rozdzielnica dystrybucyjna ,,B''};
+\node[invisible] (inv1) [below = of SG_UPS_A]   {};
+\node[element] (SERW)  [] at (inv1 -| UTL) {Zasilanie serwerów};
+
+
+% \draw (UTL_A) |- (UTL_A |- SG_UTL_A.north);
+% \draw (UTL_B) |- (UTL_B |- SG_UTL_A.north);
+\draw (GEN_A) -- (SG_UTL_A);
+\draw (GEN_B) -- (SG_UTL_B);
+\draw (UTL.-110) |- (SG_UTL_A);
+\draw (UTL.-70)  |- (SG_UTL_B);
+
+\draw (SG_UTL_A) -- (UPS_A);
+\draw (UPS_A) -- (SG_UPS_A);
+\draw (SG_UTL_B) -- (UPS_B);
+\draw (UPS_B) -- (SG_UPS_B);
+\draw (SG_UPS_A) |- (SERW);
+\draw (SG_UPS_B) |- (SERW);
+% \draw (SG_UPS_B) |- (SERW);
+\end{tikzpicture}\end{center}
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{center}
+\LARGE Pełna separacja torów.\\ Żadna awaria w torze ,,A'' nie powinna wpłynąć na działanie toru ,,B'' i vice versa.
+\end{center}
+
+\vspace{1cm}
+
+\begin{easylist}[itemize]
+& separacja fizyczna pomieszczeń
+& wydzielenia pożarowe
+& osobne przyciski PWP
+& ...
+\end{easylist}
+\end{frame}
+
+
+\section{Jak robić lepiej?}
+
+\subsection{}
+
+\begin{frame}[fragile]
+\begin{easylist}[itemize]
+& czy warto coś dodać do tego schematu?
+&& zewnętrzny bypass UPSów?
+&& sprzęgło pomiędzy rozdzielnicą wejściową ,,A'' i ,,B''?
+&& sprzęgło pomiędzy rozdzielnicą dystrybucyjna ,,A'' i ,,B''?
+&& STSy pomiędzy stronami ,,A'' i ,,B'' pozwalające na zasilenie obu stron serwera z jednego toru zasilania?
+&& N+1 na elementach w torze?
+&& ...?
+& jak to robić?
+&& sprzęgła muszą mieć podwójne wyłączniki – osobne od strony toru ,,A'' i osobne od strony toru ,,B''
+&& STSy muszą być dwa – osobny tworzący „A'” oraz osobny dla „B'”, a każdy serwer zasilany dwustronnie (z „A'” i „B'”)
+\end{easylist}
+\end{frame}
+
+% 2 ścieżki + 2x STS - czy to coś zmienia => zależy, np. od czasu naprawy uszkodzonego zasilacza
+
+\begin{frame}
+\begin{center}
+\LARGE Każdy element stanowi potencjalne źródło problemów i awarii – jego wprowadzenie do układu powinno być uzasadnione.
+\end{center}
+\end{frame}
+
+% nawiązanie do wprowadzenia UPSa (może byc przyczyną awarii, ale zabezpiecza przed bardziej prawdopodobną awarią sieci)
+
+
+\subsection{Reguła KISS}
+
+\begin{frame}[fragile]
+\begin{easylist}[itemize]
+& unikajmy komplikowania, proste rozwiązania zapewniają:
+&& łatwiejsze użytkowanie i utrzymanie – mniej ,,wiedzy tajemnej''
+&& mniejsze ryzyko błędów ludzkich (zwłaszcza w trakcie ,,zwalczania'' awarii)
+&& (często) mniejsze koszty inwestycyjne i utrzymaniowe
+& prostota wymaga konsekwencji – nie robimy wyjątków
+\end{easylist}
+\end{frame}
+
+
+\subsection{Redundancja systemów}
+
+\begin{frame}
+\begin{center}\begin{tikzpicture}[-, node distance=1.4em, semithick]
+\tikzstyle{element}=[draw, minimum height=3em, align=center]
+\tikzstyle{invisible}=[inner sep=0, outer sep = 0pt, minimum height=0, minimum width=0]
+\node[element]   (PWR_A) {\textbf{,,A''}\\3x100kW {\color{blue} x2}};
+\node[invisible, minimum height=3em, minimum width=3em] (PWR) [right = of PWR_A] {};
+\node[element]   (PWR_B) [right = of PWR]  {\textbf{,,B''}\\3x100kW {\color{blue} x2}};
+
+\node[element] (SER_1) [below = of PWR] {\textbf{1}\\200kW = 2x100kW};
+\node[element] (SER_2)  [below = of SER_1] {\textbf{2}\\200kW = 2x100kW};
+\node[element] (SER_3)  [below = of SER_2] {\textbf{3}\\200kW = 2x100kW};
+
+\draw (PWR_A) |- (SER_1);
+\draw (PWR_A) |- (SER_2);
+\draw (PWR_A) |- (SER_3);
+
+\draw (PWR_B) |- (SER_1);
+\draw (PWR_B) |- (SER_2);
+\draw (PWR_B) |- (SER_3);
+\end{tikzpicture}\end{center}
+łączna moc zainstalowana systemów zasilających = 2x3x200kW = 1200kW
+łączna moc dostępna systemów zasilających = 3x200kW = 600kW
+\end{frame}
+
+\subsection{,,Mieszanie stron''}
+
+\begin{frame}
+\begin{center}\begin{tikzpicture}[-, node distance=1.4em, semithick]
+\tikzstyle{element}=[draw, minimum height=3em, align=center]
+\tikzstyle{invisible}=[inner sep=0, outer sep = 0pt, minimum height=0, minimum width=0]
+\node[element]   (PWR_A) {\textbf{,,A''}\\2x100kW {\color{blue} +100kW}};
+\node[element]   (PWR_B) [right = 2.4em of PWR_A]  {\textbf{,,B''}\\2x100kW {\color{blue} +100kW}};
+\node[element]   (PWR_C) [right = 2.4em of PWR_B]  {\textbf{,,C''}\\2x100kW {\color{blue} +100kW}};
+
+\node[element] (SER_1) [below = of PWR_A.south east] {\textbf{1}\\200kW = 2x100kW};
+\node[element] (SER_2)  [below = of PWR_C.south west] {\textbf{2}\\200kW = 2x100kW};
+\node[element] (SER_3)  [below = of PWR_B |- SER_1.south] {\textbf{3}\\200kW = 2x100kW};
+
+\draw (PWR_A.-140) |- (SER_1);
+\draw (PWR_A.-140) |- (SER_3);
+
+\draw (PWR_B) |- (SER_1);
+\draw (PWR_B) |- (SER_2);
+
+\draw (PWR_C.-50) |- (SER_2);
+\draw (PWR_C.-50) |- (SER_3);
+\end{tikzpicture}\end{center}
+łączna moc zainstalowana systemów zasilających = 3x300kW = 900kW
+łączna moc dostępna systemów zasilających = 3x200kW = 600kW
+\end{frame}
+
+\begin{frame}[fragile]
+\begin{columns}\begin{column}{0.5\textwidth}
+\textbf{Zalety}
+\begin{easylist}[itemize]
+& 2N w cenie N+1
+& prostota koncepcyjna rozwiązania
+& powielalność ,,modułu zasilającego''
+\end{easylist}
+\end{column}\begin{column}{0.5\textwidth}
+\textbf{Wady}
+\begin{easylist}[itemize]
+& trudniejszy balans mocy
+& bardziej złożony układ dystrybucyjny
+& ciężko skalowalne dla większej ilości stron niż 5
+& raczej dla dużych serwerowni
+\end{easylist}
+\end{column}\end{columns}
+\end{frame}
+
+
+\subsection{N+2}
+
+\begin{frame}
+\begin{center}\begin{tikzpicture}[-, node distance=1.4em, semithick]
+\tikzstyle{element}=[draw, minimum height=3em, align=center]
+\tikzstyle{invisible}=[inner sep=0, outer sep = 0pt, minimum height=0, minimum width=0]
+
+\node[element] (SER_1) {\textbf{1}\\200kW =\\2x50{\color{blue}+2x50}};
+\node[element] (A1) [above left = of SER_1.north west] {\textbf{A}\\50kW {\color{blue}+50kW}};
+\node[element] (B1) [below left = of SER_1.south west] {\textbf{B}\\50kW {\color{blue}+50kW}};
+\node[element] (C1) [above right = of SER_1.north east] {\textbf{C}\\50kW {\color{blue}+50kW}};
+\node[element] (D1) [below right = of SER_1.south east] {\textbf{D}\\50kW {\color{blue}+50kW}};
+
+\draw (A1) |- (SER_1.160);
+\draw (B1) |- (SER_1.200);
+\draw (C1) |- (SER_1.20);
+\draw (D1) |- (SER_1.-20);
+\end{tikzpicture}\end{center}
+
+łączna moc zainstalowana systemów zasilających = 4x100kW = 400kW
+łączna moc dostępna systemów zasilających = 4x50kW = 200kW
+\textbf{odporność na awarię dwóch torów}
+\end{frame}
+
+\begin{frame}
+Tutaj też można ,,pomieszać'' strony zasilania różnych komór.
+
+\begin{center}\begin{tabular}{ c || c | c | c | c | c }
+ 	&	A	&	B	&	C	&	D	&	E \\ \hline
+1	&	x	&	x	&	x	&	x	&	  \\
+2	&	x	&	x	&	x	&		&	x \\
+3	&	x	&	x	&		&	x	&	x \\
+4	&	x	&		&	x	&	x	&	x \\
+5	&		&	x	&	x	&	x	&	x \\
+\end{tabular}\end{center}
+
+Gdy wypadną \textbf{dwa} dowolne moduły obciążenie każdego z pozostałych wzrośnie o 75\%. Zatem każdy moduł musi być przewymiarowany o 75\% a nie 100\% jak w wcześniejszym przypadku.
+\end{frame}
+
+\begin{frame}[fragile]
+\textbf{Zalety}
+\begin{easylist}[itemize]
+& odporność na dwie równoczesne dowolne awarie
+& odporność na awarię w trakcie prac serwisowych
+&& przy założeniu nie serwisowania więcej niż jednego toru na raz
+& realizowalność na istniejącym sprzęcie
+&& serwery 4 zasilaczowe najczęściej do pracy wymagają zasilenia dwóch dowolnych zasilaczy
+&& redundantny stack switchy dwuzasilaczowych działa przy zasileniu dowolnego jednego zasilacza
+& kompatybilność z sprzętem dwuzasilaczowym
+&& klaster HA dwóch urządzeń dwuzasilaczowych jest odporny na awarię 3 torów zasilania
+&& korzystając jedynie z dwóch stron tracimy tylko dodatkowe atuty tego rozwiązania, ale zachowujemy maksymalną niezawodność zasilania takiego urządzenia
+% & możliwość dywersyfikacji technologii
+% && eliminacja takich samych awarii na różnych stronach
+% && problem serwisowy / utrzymaniowy
+\end{easylist}
+\end{frame}
+
+\begin{frame}[fragile]
+\textbf{Wady}
+\begin{easylist}[itemize]
+& złożony układ dystrybucyjny – 4 tory zasilania do odbiorników
+& większa nadmiarowość urządzeń niż w omawianym układzie ,,mieszania stron''
+& brak bezpośrednich korzyści dla urządzeń 2 zasilaczowych, chyba że:
+&& użyjemy ATSów lub STSów
+&& złożymy dwa takie urządzenia w klaster HA
+\end{easylist}
+\end{frame}
+
+
+\section{Pytania?}
+
+\begin{frame}
+\begin{center}
+\LARGE Pytania?
+\end{center}
+\end{frame}
+
+
+\section{Licencja}
+
+\begin{frame}
+Copyright © 2019, Robert Ryszard Paciorek <rrp@opcode.eu.org>
+
+\footnotesize\vspace{1.5em}
+To jest wolny i otwarty dokument. Redystrybucja, użytkowanie i/lub modyfikacja SĄ DOZWOLONE na warunkach licencji MIT.
+
+\vspace{1.5em}
+This is free and open document. Redistribution, use and/or modify ARE PERMITTED under the terms of the MIT license.
+
+\tiny\vspace{2em}
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+\vspace{1em}
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+\vspace{1em}
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+\end{frame}
+
+\end{document}
