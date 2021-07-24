@@ -4,6 +4,7 @@ title: Szyfrowanie dysków w Linuxie
 author: Robert Paciorek
 tags:
 - debian
+- storage
 - kryptografia
 ---
 

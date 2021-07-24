@@ -201,3 +201,9 @@ Montowanie wykonujemy przy pomocy polecenia:
 	sshfs -o workaround=rename serwer:katalog punkt_montowania
 
 Oczywiście użytkownik wykonujący to polecenie musi mieć prawa do `/dev/fuse` (należeć do grupy fuse).
+
+
+## Zobacz także
+
+* [Szyfrowanie dysków w Linuxie](/2020/06/18/szyfrowanie_dysku.html)
+* [Ceph](/2021/07/18/ceph.html)
