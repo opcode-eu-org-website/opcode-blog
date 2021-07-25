@@ -43,6 +43,7 @@ Wartość *keycode* X serwera związaną z danym klawiszem (oraz informacje o je
 
 <p style="text-align: center;"><img style="width:95%;" alt="" src="/files/keyboard.svg" /></p>
 
+
 ## Konfiguracja
 
 W większości przypadków nie jest potrzebna jakakolwiek ręczna konfiguracja klawiatury na poziomie mapowania *scancode* na *keycode* (czy też wcześniejszym samego generowania *scancode* przez urządzenie).
@@ -70,6 +71,22 @@ Zmiany w `/etc/default/keyboard` będą widoczne na konsolach tekstowych po wyko
 
 Włączenie trybu NumLock w konsoli tekstowej możliwe jest przy pomocy polecenia: `setleds -D +num`.
 Dodanie go do skryptów startowych powoduje automatyczne włączanie NumLock'a po uruchomieniu systemu lub zalogowaniu.
+
+#### pozostała konfiguracja konsoli tekstowej
+
+Pakiet `console-setup` odpowiada także za ogólną konfigurację konsoli tekstowej (uwzględniającą sposób kodowania znaków w systemie, zestaw kodów dostępnych w używanej czcionce, jej rozmiar itd.).
+Konfiguracja ta zapisana jest w pliku `/etc/default/console-setup`, który może wyglądać następująco:
+
+	ACTIVE_CONSOLES="/dev/tty[1-6]"
+	CHARMAP="UTF-8"
+	CODESET="Lat2"
+	FONTFACE="Fixed"
+	FONTSIZE="8x16"
+	VIDEOMODE=
+
+#### mysz w konsoli tekstowej
+
+Terminal tekstowy sam z siebie nie wspiera myszy, jej użycie w tym środowisku może być jednak wygodne i jest możliwe dzięki programowi [gpm](https://wiki.archlinux.org/title/General_purpose_mouse) zapewniający obsługę myszy w konsoli tekstowej.
 
 ### X serwer
 
@@ -105,7 +122,7 @@ Włączenie trybu NumLock w X serwerze nie jest możliwe z użyciem `setleds`. M
 
 X serwer samodzielnie generuje sygnały związane z powtórzeniami przycisków w oparciu o *keycode* związany ze zdarzeniem *press* i *release*
 (nie korzysta w tym celu z powtarzania konfigurowanego poprzez `kbdrate`).
-W celu zmiany opóżnienia lub częstotliwości powtarzania można skorzystać z polecenia `xset r rate` np. `xset r rate 200 10` ustawi opóźnienie pierwszego powtórzenia na 200ms i częstotliwość powtórzeń na 10Hz.
+W celu zmiany opóźnienia lub częstotliwości powtarzania można skorzystać z polecenia `xset r rate` np. `xset r rate 200 10` ustawi opóźnienie pierwszego powtórzenia na 200ms i częstotliwość powtórzeń na 10Hz.
 `xset` pozwala także na włączenie / wyłączenie powtórzeń dla konkretnych klawiszy.
 
 #### klawisz komponujący
@@ -139,7 +156,9 @@ Pliki geometrii znajdują się w `/usr/share/X11/xkb/geometry/` i zgodnie z <spa
 * [Klawisze z *keycode* &gt; 0xf7 - evtest, udev](https://morfikov.github.io/post/klawiatura-multimedialna-i-niedzialajace-klawisze/)
 * [Wprowadzanie znaków niedostępnych na klawiaturze](http://dug.net.pl/tekst/151/)
 
+
 ## Odbiornik IR i sterowanie pilotem
+
 Możliwe jest także korzystanie z pilotów podczerwieni do sterowania komputerem z linuxem, przy pomocy odpowiedniego odbiornika.
 Wbudowany odbiornik podczerwieni posiada wiele z tunerów telewizyjnych DVB.
 Jeżeli jest on obsługiwany przez nasze jądo mapowania jego przycisków na sygnały klawiatury możemy dokonać z wykorzystaniem `ir-keytable`.
