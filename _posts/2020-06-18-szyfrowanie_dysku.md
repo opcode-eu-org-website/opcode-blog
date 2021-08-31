@@ -62,7 +62,7 @@ Instalacja systemu przebiega standardowo i wykorzystywane do niej jest urządzen
 	mount /dev/mapper/$NAME $MOUNT
 	
 	debootstrap stable $MOUNT http://ftp.icm.edu.pl/pub/Linux/debian/
-	chroot $MOUNT apt install grub2 linux-image-amd64
+	chroot $MOUNT apt install grub2 linux-image-amd64 cryptsetup
 
 Na potrzeby kolejnych kroków odczytujemy UUID (odszyfrowanego) systemu plików:
 
@@ -79,11 +79,11 @@ Utworzenie pliku klucza i dodanie go do szyfrowanego urządzenia blokowego:
 
 	mkdir -p $MOUNT/etc/keys && chmod 700 $MOUNT/etc/keys
 	( umask 0077 && dd if=/dev/urandom bs=1 count=64 of=$MOUNT/etc/keys/rootfs.key conv=excl,fsync )
-	cryptsetup luksAddKey --key-slot=7 $DEV $MOUNT/etc/keys/root.key
+	cryptsetup luksAddKey --key-slot=7 $DEV $MOUNT/etc/keys/rootfs.key
 
 Wpis w `/etc/crypttab` umożliwiający deszyfrację *rootfs* przy pomocy tego klucza (wskazujemy też slot z którym został powiązany ten klucz, w tym przypadku numer 7) oraz wpis w `/etc/fstab`:
 
-	echo "$NAME  UUID=$CRYPT_UUID  /etc/keys/root.key  luks,key-slot=7" >> $MOUNT/etc/crypttab
+	echo "$NAME  UUID=$CRYPT_UUID  /etc/keys/rootfs.key  luks,key-slot=7" >> $MOUNT/etc/crypttab
 	echo "/dev/mapper/$NAME  /  xfs  defaults  0  1" >> $MOUNT/etc/fstab
 
 Konfiguracja *initramfs-tools* w celu umieszczania w obrazie rozruchowym odpowiednich kluczy (i zabezpieczenia przed ich wykradzeniem):
