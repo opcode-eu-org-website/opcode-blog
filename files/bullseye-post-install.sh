@@ -47,12 +47,13 @@ pkg__05_NETWIFI__info="wireless network"
 pkg__05_NETWIFI__list="wireless-tools wpasupplicant hostapd rfkill"
 
 pkg__06_NETDIAG__info="network diagnostic"
-pkg__06_NETDIAG__list="inetutils-traceroute traceroute paris-traceroute tcptraceroute
+pkg__06_NETDIAG__list="inetutils-traceroute traceroute tcptraceroute
 	tcpdump nmap wireshark
 	sipcalc ipv6calc
 	arping arp-scan ndisc6
 	vnstat iftop netdiag tcpflow ngrep
 	dnstop dnstracer dnswalk"
+	# old: paris-traceroute
 
 pkg__11_HWTOOLS__info="hardware diagnostic"
 pkg__11_HWTOOLS__list="sysstat lm-sensors hddtemp
@@ -75,7 +76,7 @@ pkg__30_NOACTION__info=""
 
 pkg__31_DESKTOP__info="X11 desktop enviroment"
 pkg__31_DESKTOP__list="xorg slim openbox fbpanel wmctrl xdotool
-	feh xcompmgr florence grun xterm"
+	feh xcompmgr onboard grun xterm"
 
 pkg__32_DESKTOP_MULTIMEDIA__info="X11 desktop enviroment - multimedia & pdf"
 pkg__32_DESKTOP_MULTIMEDIA__list="alsa-utils pavucontrol pavumeter
@@ -83,12 +84,13 @@ pkg__32_DESKTOP_MULTIMEDIA__list="alsa-utils pavucontrol pavumeter
 
 pkg__32_DESKTOP_KDE__info="X11 desktop enviroment - konqueror, okular, kate"
 pkg__32_DESKTOP_KDE__list="konqueror dolphin kio kate okteta okular konsole konsole-kpart ark gwenview kfind
-	kde-runtime konq-plugins dolphin-plugins kio-extras kio-gopher kdepimlibs-kio-plugins sonnet-plugins
+	kde-runtime konq-plugins dolphin-plugins kio-extras kio-gopher sonnet-plugins
 	kdegraphics-thumbnailers kimageformat-plugins ffmpegthumbs unrar unzip okular-extra-backends"
+	# old: kdepimlibs-kio-plugins
 
 pkg__32_DESKTOP_NET__info="X11 desktop enviroment - internet"
 pkg__32_DESKTOP_NET__list="firefox-esr ca-certificates
-	claws-mail claws-mail-feeds-reader claws-mail-address-keeper claws-mail-multi-notifier
+	claws-mail claws-mail-feeds-reader claws-mail-address-keeper claws-mail-multi-notifier claws-mail-dillo-viewer
 	claws-mail-smime-plugin claws-mail-pgpinline claws-mail-pgpmime claws-mail-attach-remover claws-mail-tnef-parser
 	psi-plus psi-plus-plugins linphone"
 
@@ -105,8 +107,9 @@ pkg__41_AUDIO__list="audacity kwave  rosegarden
 
 pkg__42_VIDEO__info="Audio-video: video"
 pkg__42_VIDEO__list="obs-studio  openshot-qt kdenlive
-	pitivi lives  dvbcut kino"
+	pitivi lives  dvbcut"
 	# old: avidemux avidemux-cli cinelerra
+	# not in stable: kino
 
 pkg__43_AVUTILS__info="Audio-video: utils & players"
 pkg__43_AVUTILS__list="ffmpeg mencoder ogmtools sox mjpegtools
@@ -120,7 +123,8 @@ pkg__45_GRAPHICS2__info="Graphics: 2D - vector"
 pkg__45_GRAPHICS2__list="inkscape dia librecad"
 
 pkg__46_GRAPHICS3__info="Graphics: 3D"
-pkg__46_GRAPHICS3__list="blender k3d freecad   leocad ldraw-parts"
+pkg__46_GRAPHICS3__list="blender freecad   leocad ldraw-parts"
+	# not in stable: k3d
 
 pkg__47_GRAPHICS4__info="Graphics: utils"
 pkg__47_GRAPHICS4__list="graphicsmagick imagemagick netpbm exiv2 librsvg2-bin dvipng pdf2svg"
@@ -147,9 +151,10 @@ pkg__53_OFFICE__list="libreoffice-writer libreoffice-calc libreoffice-impress
 pkg__54_FONTS__info="Office & DTP: fonts"
 pkg__54_FONTS__list="fonts-dejavu fonts-lmodern fonts-freefont-otf fonts-texgyre  fonts-symbola
 	fonts-dseg fonts-glasstty fonts-ocr-a fonts-3270 fonts-okolaks fonts-ocr-b
-	ttf-sjfonts fonts-dkg-handwriting fonts-humor-sans fonts-breip fonts-pecita fonts-rufscript
+	ttf-sjfonts fonts-dkg-handwriting fonts-humor-sans fonts-breip fonts-rufscript
 	fonts-klaudia-berenika fonts-monoid fonts-levien-typoscript fonts-monofur
 	texlive-fonts-recommended"
+	# not in stable: fonts-pecita
 	# base, geek-look, handwriting, dodatkowe
 #	fonts-opensymbol fonts-powerline fonts-noto-color-emoji
 #	fonts-hack-otf fonts-inconsolata fonts-junicode fonts-roboto fonts-sil-andika fonts-sil-gentium
@@ -161,7 +166,7 @@ pkg__54_FONTS__list="fonts-dejavu fonts-lmodern fonts-freefont-otf fonts-texgyre
 pkg__60_NOACTION__info=""
 
 pkg__61_ELECTREONICS__info="Engineering: electreonics"
-pkg__61_ELECTREONICS__list="lepton-eda pcb-rnd gerbv kicad
+pkg__61_ELECTREONICS__list="geda geda-gschem geda-utils pcb-rnd gerbv kicad
 	oregano gnucap gnucap-default-plugins0 gnucap-common ngspice tkgate
 	avarice avrdude uisp stm32flash"
 
@@ -173,9 +178,10 @@ pkg__62_SOFTDEV__list="gcc g++ clang gdb make cmake pkg-config
 
 pkg__63_DEVUTILS__info="Engineering: utils"
 pkg__63_DEVUTILS__list="git subversion mercurial bzr bzrtools patch
-	pythoncad gnuplot-x11
+	gnuplot-x11
 	xutils-dev devscripts cpio
 	xalan xmlstarlet libsaxonb-java"
+	# old: pythoncad
 
 pkg__80_SERVER__info="Servers"
 pkg__80_SERVER__list="bsd-mailx nullmailer rssh
