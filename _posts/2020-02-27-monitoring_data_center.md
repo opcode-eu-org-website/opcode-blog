@@ -4,6 +4,7 @@ title: Budowa systemu monitoringu infrastruktury obiektów data center
 author: Robert Paciorek
 tags:
 - konferencje
+- bms
 ---
 
 Wystąpienie na konferencji "Data Center Trends" (Warszawa 2020-02-27).
@@ -14,3 +15,15 @@ Niestety rozwiązania takie mają liczne ograniczenia a ich w drożenie w nie ca
 Jako że głównymi użytkownikami data center jest branża IT, można pokusić się o zastosowanie do monitoringu DC znanych rozwiązań monitoringu infrastruktury IT (takich jak nagios, zabbix, itp) wraz z siecią monitorującą opartą o TCP/IP i standardowe, otwarte protokoły.
 
 [Prezentacja](/files/monitoring_obiektow_data_center-prezentacja.pdf)
+
+## Materiały dodatkowe
+
+### Prometheus, Grafana i Thanos
+
+Powyższa prezentacja pokazuje rozwiązanie oparte na zabbixie i bezpośrednim dostępie do jego bazy SQL (dla celów zewnętrznej wizualizacji). W miejsce zabbixa może zostać użyte innego podobne oprogramowanie np. Prometheus wspomagany Grafaną i Thanosem. Takie podejście powinno ułatwić archiwizację starszych danych (Thanos), a także pozwala na lepsze oddzielenie konfigu od danych (konfiguracja zbierania danych przez Prometheusa w plikach yaml).
+
+### integracja CCTV IP
+
+Z takim otwartym systemem monitoringu parametrów zintegrowany może być także system telewizji dozorowej opartej o technologię IP. Poniżej przedstawiony jest przykładowy schemat takiego rozwiązania. Zakłada on użycie kamer IP z detekcją ruchu / obiektów / alarmów realizowaną w kamerze oraz z możliwością zapisu strumienia wideo bezpośrednio przez kamerę na zewnętrzną macierz.
+
+<p style="text-align: center;"><img style="width:95%;" alt="" src="/files/cctv.svg" /></p>
