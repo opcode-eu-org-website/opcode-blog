@@ -18,6 +18,7 @@ Poniżej zamieszczam informacje związane z konfiguracją wybranych programów. 
 
 * [Wsparcie UTF-8 bez instalowania locali](/2019/03/29/utf-8_bez_locales.html)
 * [Zaginione ikony w aplikacjach KDE](/2019/04/07/zagionione_ikony_w_kate.html)
+* [Konqueror](/2019/07/07/konqueror.html)
 
 
 ## Bash
