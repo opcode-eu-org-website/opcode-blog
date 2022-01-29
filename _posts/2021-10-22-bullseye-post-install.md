@@ -38,3 +38,5 @@ Type=Application
 	* rozwiązaniem jest przekopiowanie brakujących ikon z `/usr/share/kolourpaint/icons/hicolor/22x22/actions/` do `/usr/share/icons/oxygen/base/22x22/actions/` i wywołanie polecenia `update-icon-caches /usr/share/icons/oxygen` (w razie potrzeby można zapewne użyć także ikon o innych rozmiarach niż 22x22 podane w przykładzie)
 * ginący kursor w Kate
 	* może zdarzać się że po użyciu opcji znajdź lub zastąp w edytorze Kate kursor przestaje być widoczny nad paskiem przewijania i tytułami kart, obejściem jest otwarcie okienka wyszukiwania z paska narzędzi lub menu (a nie skrótu klawiaturowego), następnie można już normalnie używać skrótów
+* nie działający import schematu *gschem* w *pcb-rnd* (po migracji na *lepton-eda*)
+	* `ln -s /usr/bin/lepton-netlist /usr/local/bin/gnetlist`
