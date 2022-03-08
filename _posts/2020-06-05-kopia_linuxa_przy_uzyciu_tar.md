@@ -34,7 +34,7 @@ W obu wypadkach podana została opcja `-f -` która powoduje zapis/czytanie arch
 
 lub pobranie go z maszyny zdalnej:
 
-	ssh user@host 'archiwum.tgz'  |  tar -xzf - --xattrs --xattrs-include='*.*' --numeric-owner -C $TARGET
+	ssh user@host 'cat archiwum.tgz'  |  tar -xzf - --xattrs --xattrs-include='*.*' --numeric-owner -C $TARGET
 
 Możliwe jest także bezpośrednie rozpakowywanie na maszynie zdalnej, bezpośrednie kopiowanie pomiędzy lokalnymi systemami plików a także przekierowanie do pliku poprzez (w tych wypadkach oczywiście zamiast przekierowania strumienia można podać od razu ścieżkę do pliku w opcji `-f`):
 
