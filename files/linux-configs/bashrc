@@ -38,12 +38,12 @@ umask 0022
 } 2> /dev/null
 
 # sprawdzenie dostępności ustawionych locali i ew. powrót do C.UTF-8
-perl -e exit 2>&1 | grep "Setting locale failed" > /dev/null 2>&1 && export LC_ALL=C.UTF-8;
+perl -e exit 2>&1 | grep 'Setting locale failed' > /dev/null 2>&1 && export LC_ALL=C.UTF-8;
 
 
 # ścieżki
 [ -d $HOME/.tex ] && export TEXINPUTS=".:$HOME/.tex:"
-[ -d $HOME/.bin ] && export PATH=$HOME/.bin:"${PATH}"
+[ -d $HOME/.bin ] && export PATH=$HOME/.local/bin:$HOME/.bin:"${PATH}"
 
 
 #
@@ -226,7 +226,7 @@ rgrep() { grep -R "$@" .; }
 regrep() { egrep -R "$@" .; }
 rreplace() {
 	if [ $# -ne 2 ]; then
-		echo USAGE: $1 str1 str2
+		echo USAGE: $0 str1 str2
 		return
 	fi
 	\grep -R "$1" . | cut -f 1 -d: | uniq | while read f; do
@@ -258,13 +258,24 @@ alias 'history_stop'='HISTFILE=/dev/null'
 # bc operuje na zmiennoprzecinkowych
 alias 'bc'='bc -l'
 
+# less bez czyszczenia ekranu, z automatycznym wyjsciem gdy mniej niz ekran oraz przepuszczaniem kolorowania
+alias less='less -XFR'
+
 # preformatowane info o czasie i dacie
 alias 'date_iso'='date +"%A,  %Y-%m-%d %H:%M:%S %z (%Z)%n time stamp: %s"'
 alias 'date_iso_utc'='date_iso --utc'
 
+# konwersja pdf'ów do odcieni szarości
+pdf2gray() { gs -sOutputFile="$2"  -sDEVICE=pdfwrite  -sColorConversionStrategy=Gray  -dProcessColorModel=/DeviceGray  -dCompatibilityLevel=1.4 -dNOPAUSE  -dBATCH "$1"; }
+
 # inne
-alias "y"="youtube-dl -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4'"
 alias sigrok=pulseview
+alias y="yt-dlp -f 'bestvideo[ext=mp4]+bestaudio[ext=m4a]/mp4'"
+alias yy='yt-dlp -f22'
+yyy() { for u in $@; do yy $u; done; }
+
+# ustawienia pass (http://www.passwordstore.org/)
+. ~/.password-store/.bashrc.inc.sh
 
 
 #
