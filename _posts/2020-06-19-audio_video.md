@@ -18,7 +18,15 @@ Taka sama (lub bardzo podobna) składnia jak w *ffmpeg* działa także w *avconv
 
 	ffmpeg -ss '1:13' -i INPUT.mp4 -t 22 -codec copy OUT.mp4
 
-`-ss` określa początek wycinanego fragmentu (w tym przykładzie 1 minuta i 13 sekund), `-t` określa długość wycinanego fragmentu (w tym przykładzie 22 sekundy)
+lub
+
+	ffmpeg -ss '1:13' -i INPUT.mp4 -to '1:35' -codec copy OUT.mp4
+
+
+`-ss` określa początek wycinanego fragmentu (w tym przykładzie 1 minuta i 13 sekund),
+`-t` określa długość wycinanego fragmentu (w tym przykładzie 22 sekundy),
+`-to` określa koniec wycinanego fragmentu (w tym przykładzie 2 minuta i 35 sekund)
+
 
 ### łączenie plików video
 
@@ -33,6 +41,7 @@ lub w oparciu o listę plików do połączenia w postaci pliku:
 
 (uwaga: wersja z wykazem plików do połączenia w pliku, radzi sobie z większą ilością przypadków, m.in. z sytuacjami gdy na skutek pierwszego wariantu plik wynikowy zawiera dane tylko z pierwszego z plików)
 
+
 ## ffmpeg – ścieżka audio
 
 ### wyciągnięcie ścieżki audio
@@ -43,6 +52,29 @@ lub w oparciu o listę plików do połączenia w postaci pliku:
 
 ### dodanie dodatkowej ścieżki audio
 	ffmpeg -i video_with_OLD_audio.mp4 -i NEW_audio.aac -c copy -map 0:v -map 1:a -map 0:a video_with_NEW_audio.mp4
+
+
+## ffmpeg – napisy
+
+### dodanie napisów do kontenera mkv
+
+	ffmpeg -i INPUT.mp4 -i INPUT.vtt -c copy OUTPUT.mkv
+
+można także użyć innego formatu napisów (np. `srt` zamiast `vtt`),
+jeżeli dodajemy kilka ścieżek napisów należy skorzystać z opcji `-map` (analogicznie jak przy kilku ścieżkach audio), np:
+
+	ffmpeg -i INPUT.mp4 -i INPUT.en.vtt -i INPUT.pl.vtt -map 0 -map 1:0 -map 2:0 -c copy OUTPUT.mkv
+
+można też określić metadane ścieżki (np. język):
+
+	ffmpeg -i INPUT.mp4 -i INPUT.en.vtt -i INPUT.pl.vtt -map 0 -map 1 "-metadata:s:s:0" "language=en" -map 2 "-metadata:s:s:1" "language=pl" -c copy OUTPUT.mkv
+
+### eksport napisów z kontenera mkv
+
+	ffmpeg -i INPUT.mkv -map 0:s:0 OUTPUT.vtt
+
+`0:s:0` określa ścieżkę napisów, jeżeli jest kilka (np. różne języki) można wybrać inną niż zerowa wg. schematu `ID_PLIKU:s:ID_ŚCIEŻKI` (czyli np. `0:s:1`),
+można także użyć innego formatu napisów (np. `srt` zamiast `vtt`)
 
 
 ## v4l2loopback – nadawanie do /dev/video0
