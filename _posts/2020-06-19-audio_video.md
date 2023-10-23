@@ -16,11 +16,11 @@ Taka sama (lub bardzo podobna) składnia jak w *ffmpeg* działa także w *avconv
 
 ### wycinanie fragmentu pliku video
 
-	ffmpeg -ss '1:13' -i INPUT.mp4 -t 22 -codec copy OUT.mp4
+	ffmpeg -ss '1:13' -t 22 -i INPUT.mp4 -codec copy OUT.mp4
 
 lub
 
-	ffmpeg -ss '1:13' -i INPUT.mp4 -to '1:35' -codec copy OUT.mp4
+	ffmpeg -ss '1:13' -to '1:35' -i INPUT.mp4 -codec copy OUT.mp4
 
 
 `-ss` określa początek wycinanego fragmentu (w tym przykładzie 1 minuta i 13 sekund),

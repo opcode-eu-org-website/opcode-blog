@@ -93,3 +93,13 @@ Skrypt konfiguracyjny *nftables* tworzący takie set'y oraz używający ich do f
 Wyłączenie reguł związanych z obsługą listy adresów niepodlegających filtracji przez reguły *sshguard*, blokowaniem połączeń z adresów dodanych przez *sshguard* oraz akceptacją pozostałych połączeń do osobnego łańcucha `sshguard` ma na celu jedynie zwiększenie czytelności i uniknięcie powtarzania w każdej z tych reguł `tcp dport ssh`.
 
 Więcej o *nftables* w [TCP/IP &amp; Ethernet](http://www.opcode.eu.org/Sieci.pdf).
+
+
+### ochrona SMTP
+
+*sshguard* umożliwia także wychwytywanie ataku na inne usługi. Aby dodać blokowanie atakach siłowych na exim (SMTP) należy w pliku `/etc/sshguard/sshguard.conf` ustawić:
+
+	LOGREADER="LANG=C journalctl -afb -p info -n1 -t sshd -t exim -o cat | sed -u -e 's@login authenticator failed for@authenticator failed for@'"
+
+Polecenie sed'owe jest konieczne aby dostosować informację logowaną przez exima (4.96) do wyrażenia na które wrażliwy jest sshguard (2.4.2).
+W przypadku korzystania z powyższej konfiguracji konieczne jest także przekierowanie ruchu SMTP do łańcucha sshguard w nft.
