@@ -126,16 +126,18 @@ Jego konfiguracja umieszczana jest w ogólnym pliku konfiguracyjnym aplikacji dz
 	
 	! use TrueType font
 	xterm.vt100.renderFont: true
-	xterm.vt100.faceName: Monospace
-	xterm.vt100.faceSize: 12
+	XTerm*faceName: Monospace
+	XTerm*faceSize: 12
 	
-	! visual - colors, cursor, ...
-	xterm.vt100.foreground: green
-	xterm.vt100.background: black
+	! visual - cursor, colors, ...
 	xterm.vt100.cursorBlink: true
+	XTerm*foreground: green
+	XTerm*background: black
 	
 	! set TERM env variable
 	! xterm.termName: xterm-256color
+
+Użycie `XTerm*` zamiast `xterm.vt100.` pozwala na nadpisywanie tych ustawień z użyciem opcji linii poleceń, na przykład: `xterm -bg black -fg white -fs 10 /usr/bin/python3`.
 
 
 ## OpenBox
