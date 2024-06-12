@@ -1,0 +1,6 @@
+[Desktop Entry]
+Type=Application
+Exec=sh -c "xterm -e python3 -i ~/.pyCalc-Autostart.py"
+Icon=fbpanel-calculator
+Name=Calculator
+Categories=LXPANEL

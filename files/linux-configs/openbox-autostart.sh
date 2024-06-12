@@ -36,12 +36,15 @@ fi
 # wczytanie .Xdefaults
 [ -f ~/.Xdefaults ] && xrdb -merge ~/.Xdefaults
 
+# ustawienie źródła wyglądu aplikacji Qt
+export QT_QPA_PLATFORMTHEME=qt5ct
+
 
 # ustawienie mapy klawiatury
 setxkbmap -option "kpdl:dot" pl
 
 # włączenie numlock
-python -c 'from ctypes import *; X11 = cdll.LoadLibrary("libX11.so.6"); X11.XOpenDisplay.restype = c_void_p; display = X11.XOpenDisplay(None); X11.XkbLockModifiers(c_void_p(display), c_uint(0x0100), c_uint(16), c_uint(16)); X11.XCloseDisplay(c_void_p(display))';
+python3 -c 'from ctypes import *; X11 = cdll.LoadLibrary("libX11.so.6"); X11.XOpenDisplay.restype = c_void_p; display = X11.XOpenDisplay(None); X11.XkbLockModifiers(c_void_p(display), c_uint(0x0100), c_uint(16), c_uint(16)); X11.XCloseDisplay(c_void_p(display))';
 
 # nielimitowany dostep do X serwera z localhosta (dla schroot)
 xhost +localhost
@@ -62,21 +65,6 @@ fi
 if which xcompmgr && [ "$DONT_RUN_XCOMPMGR" != "true" ] ; then
 	xcompmgr -c &
 fi
-
-# start fbpanel
-(
-	err_cnt=0
-	while [ $err_cnt -lt 5 ]; do
-		${FBPANEL_PATH-fbpanel}
-		if [ $? -eq 0 ]; then
-			err_cnt=0
-		else
-			err_cnt=$(( $err_cnt + 1 ))
-		fi
-		echo "fbpanel restart error count: $err_cnt"
-		sleep 1;
-	done
-) > /tmp/fbpanel-${USER}${DISPLAY}.log 2>&1 &
 
 if [ "$DONT_RUN_DEFAPPS" != "true" ] ; then
 	for a in ${DEFAPPS:-claws-mail psi-plus linphone}; do
@@ -142,3 +130,20 @@ fi
 
 # ustaw tapetę
 [ "$WALLPAPER_PATH" != "" ] && feh --bg-fill $WALLPAPER_PATH &
+
+# start panel
+LANG=C.UTF8 LC_TIME=en_DK.UTF-8 TZ=Europe/Warsaw lxpanel &
+
+# start clipboard manager
+(
+	sleep 1.3
+	parcellite
+) &
+(
+	sleep 3.0
+	if ! ps x | grep parcellite; then
+		echo parcellite try again
+		sleep 1.7
+		parcellite
+	fi
+) &

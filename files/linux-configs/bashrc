@@ -73,6 +73,9 @@ exec_tmux_choose_session() {
 		dialog_opt1='--menu "tmux is running - choose tmux session:" 0 0 0 _NEW_SES_ "start new tmux sesion" _NO_TMUX_ "start shell instand tmux"'
 		dialog_opt2=''
 		eval whiptail $dialog_opt1 $sesions $dialog_opt2 2> "$TMP_FILE"
+		if [ $? -ne 0 ]; then
+			exit
+		fi
 
 		session=`cat "$TMP_FILE"`
 		rm -f "$TMP_FILE"
@@ -95,7 +98,7 @@ exec_tmux_choose_session() {
 }
 
 parent=`tr '\0' '\n' < /proc/$PPID/cmdline | head -n1`
-if echo $parent | egrep '^(xfce4-terminal|/usr/bin/xfce4-terminal|xterm|/usr/bin/xterm|/bin/login)' > /dev/null; then
+if echo $parent | egrep '^((/usr)?/bin/)?(xterm|konsole|xfce4-terminal|login)' > /dev/null; then
 	exec_tmux_choose_session
 fi
 

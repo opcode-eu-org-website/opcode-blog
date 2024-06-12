@@ -224,6 +224,6 @@ W pliku tym skonfigurowane są także ikony na pasku tytułowym okna w sposób n
 
 Przydatnym dodatkiem do openboxa może być panel z podglądem i  przełączaniem pulpitów, okien, zegarkiem, itp. Funkcję taką może pełnić np. [fbpanel](https://packages.debian.org/stable/fbpanel).
 
-Zamieszczam przykłądowy plik konfiguracyjny [`~/.config/fbpanel/default`](/files/linux-configs/fbpanel).
+Zamieszczam przykładowy plik konfiguracyjny [`~/.config/fbpanel/default`](/files/linux-configs/fbpanel).
 Wykorzystuje on moje poprawki do *fbpanel*, których [źródła dostępne są w serwisie github](https://github.com/aanatoly/fbpanel/pulls/rpaciorek).
 W serwisie tym dostępny jest też [mój fork fbpanel](https://github.com/rpaciorek/fbpanel/), zawierający te poprawki.

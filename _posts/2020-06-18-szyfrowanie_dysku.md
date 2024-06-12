@@ -150,3 +150,4 @@ Dodatkowo należy utworzyć plik `/etc/grub.d/13_linux_secure.conf` przy pomocy 
 
 * [Własny Debian LiveUSB](http://www.opcode.eu.org/LiveUSB.xhtml)
 * [Bootowanie systemu](http://www.opcode.eu.org/SystemBoot.xhtml)
+* [przykładowy skrypt montujący zaszyfrowaną partycję](/files/mountSRV.sh)

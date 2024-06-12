@@ -1,0 +1,216 @@
+# lxpanel <profile> config file. Manually editing is not recommended.
+# Use preference dialog in lxpanel to adjust config when you can.
+
+Global {
+  edge=bottom
+  allign=left
+  margin=0
+  widthtype=percent
+  width=90
+  height=58
+  transparent=1
+  tintcolor=#000000
+  alpha=136
+  setdocktype=1
+  setpartialstrut=1
+  usefontcolor=1
+  fontcolor=#ffffff
+  usefontsize=1
+  fontsize=11
+  background=0
+  backgroundfile=/usr/share/lxpanel/images/background.png
+  align=center
+}
+Plugin {
+  type=menu
+  Config {
+    image=/usr/share/lxpanel/images/my-computer.png
+    system {
+    }
+    separator {
+    }
+    separator {
+    }
+    menu {
+      name=Actions
+      image=fbpanel-actions
+      item {
+        image=fbpanel-halt
+        name=Shutdown
+        action=sudo shutdown -h now
+      }
+      item {
+        image=fbpanel-reboot
+        name=Reboot
+        action=sudo shutdown -r now
+      }
+      separator {
+      }
+      item {
+        image=fbpanel-screen-disable
+        name=Disable Display
+        action=xset dpms force off
+      }
+      item {
+        image=fbpanel-screen-lock
+        name=Lock Display
+        action=slock
+      }
+      item {
+        image=fbpanel-logout
+        name=Logout
+        command=logout
+      }
+    }
+    separator {
+    }
+    item {
+      image=fbpanel-run
+      command=run
+    }
+    item {
+      image=fbpanel-terminal
+      name=xterm
+      action=xterm
+    }
+  }
+}
+Plugin {
+  type=space
+  Config {
+    Size=10
+  }
+  expand=0
+}
+Plugin {
+  type=launchbar
+  Config {
+    Button {
+      id=lxpanel.konqbrowser.desktop
+    }
+    Button {
+      id=org.kde.dolphin.desktop
+    }
+    Button {
+      id=firefox-esr.desktop
+    }
+    Button {
+      id=lxpanel.calculator.desktop
+    }
+    Button {
+      id=lxpanel.kate.desktop
+    }
+    Button {
+      id=org.kde.konsole.desktop
+    }
+    Button {
+      id=lxpanel.pavucontrol.desktop
+    }
+    Button {
+      id=lxpanel.run.desktop
+    }
+  }
+}
+Plugin {
+  type=space
+  Config {
+    Size=4
+  }
+  expand=0
+}
+Plugin {
+  type=tray
+  Config {
+  }
+}
+Plugin {
+  type=space
+  Config {
+    Size=8
+  }
+  expand=0
+}
+Plugin {
+  type=pager
+  Config {
+  }
+}
+Plugin {
+  type=space
+  Config {
+    Size=4
+  }
+  expand=0
+}
+Plugin {
+  type=taskbar
+  expand=1
+  Config {
+    tooltips=1
+    IconsOnly=0
+    AcceptSkipPager=1
+    ShowIconified=1
+    ShowMapped=1
+    ShowAllDesks=0
+    UseMouseWheel=1
+    UseUrgencyHint=1
+    FlatButton=0
+    MaxTaskWidth=220
+    spacing=2
+    GroupedTasks=0
+    DisableUpscale=0
+    UseSmallerIcons=-1
+    SameMonitorOnly=0
+  }
+}
+Plugin {
+  type=space
+  Config {
+    Size=8
+  }
+}
+Plugin {
+  type=monitors
+  Config {
+    DisplayCPU=0
+    DisplayRAM=1
+    RAMColor=#FF0000
+  }
+}
+Plugin {
+  type=monitors
+  Config {
+    DisplayCPU=1
+    DisplayRAM=0
+    CPUColor=#00FF00
+  }
+}
+Plugin {
+  type=thermal
+  Config {
+    NormalColor=#00ff00
+    Warning1Color=#fff000
+    Warning2Color=#ff0000
+    AutomaticLevels=1
+    Warning1Temp=65
+    Warning2Temp=70
+    AutomaticSensor=1
+  }
+}
+Plugin {
+  type=space
+  Config {
+    Size=4
+  }
+  expand=0
+}
+Plugin {
+  type=dclock
+  Config {
+    ClockFmt=%T %Z %n%F%n%A / %B
+    TooltipFmt=UTC%z, unix: %s%n%j day of year (%u of %V week)
+    BoldFont=1
+    IconOnly=0
+    CenterText=1
+  }
+}
