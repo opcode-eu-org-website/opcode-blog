@@ -141,7 +141,7 @@ LANG=C.UTF8 LC_TIME=en_DK.UTF-8 TZ=Europe/Warsaw lxpanel &
 ) &
 (
 	sleep 3.0
-	if ! ps x | grep parcellite; then
+	if ! ps -C parcellite; then
 		echo parcellite try again
 		sleep 1.7
 		parcellite

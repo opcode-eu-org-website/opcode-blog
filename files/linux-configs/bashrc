@@ -31,6 +31,7 @@ umask 0022
 # ustawienie locali
 {
 	export LANG="pl_PL.UTF-8"     # ustawienie ogólne - polski
+	export LC_MESSAGES="C.UTF-8"  # nie tłumaczone komunikaty programów (`ps --pomoc całość` to za dużo)
 	export LC_TIME="en_DK.UTF-8"  # format wyświetlania daty zgodny z ISO 8601 (np. w wyniku `date +%c`)
 	export LC_COLLATE="C.UTF-8"   # sortowanie w stylu C
 	export LC_NUMERIC="C.UTF-8"   # separator dziesiętny w stylu C (kropka)
