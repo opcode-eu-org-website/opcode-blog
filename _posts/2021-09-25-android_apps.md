@@ -20,21 +20,25 @@ tags:
 		* klucze dodawane są dla hosta (dodając klucz określamy dla jakiego hosta ma być użyty)
 		* klucze muszą być w formacie RSA a nie OpenSSH (wygenerowane `ssh-keygen -t rsa -m pem -f plik_klucza`)
 	* [Primitive FTPd](https://github.com/wolpi/prim-ftpd/)
-* Mapy i nawidacja
+* Mapy i nawigacja
 	* [GPSUp](https://github.com/2ruslan/GpsUp)
 	* [GPSTest](https://github.com/barbeau/gpstest) by barbeauDev
+	* [GPS Logger](https://github.com/BasicAirData/GPSLogger/)
 	* All-In-One Offline Maps ([non-free](https://play.google.com/store/apps/details?id=net.psyberia.offlinemaps))
 	* Coordinate Converter Plus ([non-free](https://play.google.com/store/apps/details?id=com.tennyson.degrees2utm))
 * Przeglądarka WWW
 	* [Firefox](https://www.mozilla.org/en-US/firefox/mobile/) + [FoxProxy](https://github.com/foxyproxy/firefox-extension)
 * Edytor tekstu
 	* [Acode](https://github.com/deadlyjack/Acode)
+* Nagrywanie dźwięku
+	* [AudioRecorder](https://github.com/Dimowner/AudioRecorder)
 
 ##### linia poleceń, i przydatne narzędzia 
 
 * Emulator terminala wraz z narzędziami cmd-line
+	* [TermOne Plus](https://gitlab.com/termapps/termoneplus) + [SecureBox-ssh,sftp,scp and etc](https://gitlab.com/termapps/securebox)
 	* [Termux](https://github.com/termux/termux-app)
-		* warto doinstalować kilka przydatnych narzędzi poprzez: `pkg install python openssh tracepath git vim` wywołane w Termux'ie
+		* warto doinstalować kilka przydatnych narzędzi poprzez: `pkg install python openssh tracepath git vim gnupg pass pass-otp` wywołane w Termux'ie
 * SSH
 	* [ConnectBot](https://connectbot.org/)
 * Kalkulator
@@ -45,12 +49,15 @@ tags:
 	* [Pdf Viewer Plus](https://github.com/JavaCafe01/PdfViewer)
 * Przeglądarka dokumentów ODF
 	* [OpenDocument Reader](https://github.com/TomTasche/OpenDocument.droid)
+* Manager haseł
+	* [Password Store](https://github.com/android-password-store/Android-Password-Store) + [OpenKeychain: Easy PGP](https://github.com/open-keychain/open-keychain)
 
 ### launcher, widgety, itp.
 
 * Launcher
 	* Nova Launcher ([non-free](https://play.google.com/store/apps/details?id=com.teslacoilsw.launcher))
-		* [backup konfiguracji](/files/android/2021-09-26_01-59.novabackup)
+		* [backup konfiguracji 2021](/files/android/2021-09-26_01-59.novabackup)
+		* [backup konfiguracji 2024](/files/android/2024-12-01_11-21.novabackup)
 * Klawiatura
 	* [Hacker's Keyboard](https://code.google.com/p/hackerskeyboard/)
 * Manager Schowka
@@ -63,6 +70,12 @@ tags:
 	* Shutdown (no Root) ([non-free](https://play.google.com/store/apps/details?id=com.samiadom.Shutdown))
 * Blokada odbierania połączeń (na nieodblokowanym telefonie)
 	* Incoming Call Lock ([non-free](https://play.google.com/store/apps/details?id=com.approids.calllock))
+* Ustawienia i dostosowywanie:
+	* [SystemUI Tuner](https://github.com/zacharee/Tweaker/)
+	* [NFC Quick Settings](https://github.com/pcolby/nfc-quick-settings)
+	* [Sound Quick Settings](https://github.com/SimonMarquis/Android-SoundQuickSettings)
+	* Quick Settings ([non-free](https://play.google.com/store/apps/details?id=it.simonesestito.ntiles))
+	* BootControl ([non-free](https://play.google.com/store/apps/details?id=com.microntek.bootcontrol))
 * Widget battery
 	* Battery Widget ([non-free](https://play.google.com/store/apps/details?id=com.droidparadise.batterywidget))
 * Backup
@@ -74,6 +87,7 @@ tags:
 	* NFC Tools ([non-free](https://play.google.com/store/apps/details?id=com.wakdev.wdnfc))
 	* [Sensors Sandbox](https://github.com/mustafa01ali/SensorsSandbox)
 	* Skaner kodów kreskowych 1D i 2D: [BinaryEye](https://github.com/markusfisch/BinaryEye)
+	* Terminal szeregowy via USB - [UsbTerminal](https://github.com/liorhass/UsbTerminal)
 * Informacje turystyczno-plażowe:
 	* wschody - zachody – LunaSolCal Mobile ([non-free](https://play.google.com/store/apps/details?id=com.vvse.lunasolcal))
 	* pływy morskie – Tide charts - eTide HDF ([non-free](https://play.google.com/store/apps/details?id=com.Elecont.etide))
@@ -89,8 +103,6 @@ Wiele jest słabych, ale część "daje radę", a dla części ciężko znaleź�
 	* może być uruchamiany kliknięciem na widget zegara z sekundnikiem
 * Aparat
 	* zewnętrze programy aparatu nie zawsze mają dostęp do pełnej rozdzielczości, wszystkich aparatów, itd. więc wbudowana aplikacja się przydaje
-* Rejestrator dźwięku
-* Notatki
 * Chrome
 * Telefon, Wiadomości i Kontakty
 * Ustawienia
