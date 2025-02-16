@@ -6,6 +6,8 @@ tags:
 - android
 ---
 
+(aktualizacja 2025-01-24)
+
 ## Subiektywny wybór aplikacji
 
 ### podstawy
@@ -21,9 +23,8 @@ tags:
 		* klucze muszą być w formacie RSA a nie OpenSSH (wygenerowane `ssh-keygen -t rsa -m pem -f plik_klucza`)
 	* [Primitive FTPd](https://github.com/wolpi/prim-ftpd/)
 * Mapy i nawigacja
-	* [GPSUp](https://github.com/2ruslan/GpsUp)
 	* [GPSTest](https://github.com/barbeau/gpstest) by barbeauDev
-	* [GPS Logger](https://github.com/BasicAirData/GPSLogger/)
+		* w opcjach można włączyć podtrzymywanie działania GNSS (pozycja wyświetlana jako powiadomienie)
 	* All-In-One Offline Maps ([non-free](https://play.google.com/store/apps/details?id=net.psyberia.offlinemaps))
 	* Coordinate Converter Plus ([non-free](https://play.google.com/store/apps/details?id=com.tennyson.degrees2utm))
 * Przeglądarka WWW
@@ -90,7 +91,7 @@ tags:
 	* Terminal szeregowy via USB - [UsbTerminal](https://github.com/liorhass/UsbTerminal)
 * Informacje turystyczno-plażowe:
 	* wschody - zachody – LunaSolCal Mobile ([non-free](https://play.google.com/store/apps/details?id=com.vvse.lunasolcal))
-	* pływy morskie – Tide charts - eTide HDF ([non-free](https://play.google.com/store/apps/details?id=com.Elecont.etide))
+	* pływy morskie – Tide Charts ([non-free](https://play.google.com/store/apps/details?id=com.SeventhGear.tides))
 
 ### aplikacje systemowe
 
@@ -101,12 +102,11 @@ Wiele jest słabych, ale część "daje radę", a dla części ciężko znaleź�
 * Zegar
 	* ustawienia alarmów, timer, stoper, ...
 	* może być uruchamiany kliknięciem na widget zegara z sekundnikiem
+* Telefon, Wiadomości i Kontakty
 * Aparat
 	* zewnętrze programy aparatu nie zawsze mają dostęp do pełnej rozdzielczości, wszystkich aparatów, itd. więc wbudowana aplikacja się przydaje
 * Chrome
-* Telefon, Wiadomości i Kontakty
-* Ustawienia
-* Sklep Play
+* Ustawienia i Sklep Play
 
 
 ## Wymiana plików z komputerem poprzez USB
