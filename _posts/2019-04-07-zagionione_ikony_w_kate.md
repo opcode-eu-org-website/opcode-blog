@@ -77,3 +77,10 @@ Pakiet qt5-style-plugins dostarcza kilka dodatkowych stylów możliwych do wybra
 oraz plugin pozwalający na upodobnienie do wyglądu skonfigurowanego dla aplikacji opartych na bibliotece gtk2 poprzez ustawienie `QT_QPA_PLATFORMTHEME=gtk2`.
 
 Natomiast pakiet qt5-gtk-platformtheme dostarcza plugin pozwalający na upodobnienie do wyglądu aplikacji opartych na bibliotece gtk3 poprzez ustawienie `QT_QPA_PLATFORMTHEME=gtk3`.
+
+
+## KDE6 (aktualizacja 2025-04-23)
+<a name="KDE6" />
+
+1. Dla poprawnego wyświetlania ikon w Qt6 potrzebny jest pakiet `qt6-svg-plugins`
+2. `qt5ct` ani `qt6ct` zdają się nie mieć wpływu na ikony w aplikacjach KDE6. Ustawienie pożądanego wyglądu możliwe jest poprzez instalację pakietów: `plasma-workspace` i`systemsettings`, ustawienie porządanego wyglądu z użyciem `systemsettings` oraz ustawieniu wartości `QT_QPA_PLATFORMTHEME` na `kde` poprzez `export QT_QPA_PLATFORMTHEME=kde`

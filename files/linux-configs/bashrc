@@ -277,8 +277,8 @@ pdf2gray() { gs -sOutputFile="$2"  -sDEVICE=pdfwrite  -sColorConversionStrategy=
 alias sigrok=pulseview
 alias y="yt-dlp -f 'bestvideo[ext=mp4]+(bestaudio[ext=m4a][language=pl]/ba[ext=m4a][language=en]/ba[ext=m4a])/mp4'"
 #alias yy='yt-dlp -f136+139' #-f22
-alias yy="yt-dlp -f '(mp4)[height<=720]+(bestaudio[ext=m4a][language=pl]/ba[ext=m4a][language=en]/ba[ext=m4a])/mp4'"
-alias yys='yy --write-auto-subs --write-subs' #-f22
+alias yy="yt-dlp -f 'bestvideo[height<=720][ext=mp4]+(bestaudio[ext=m4a][language=pl]/ba[ext=m4a][language=en]/ba[ext=m4a])'"
+alias yys='yy --write-auto-subs --write-subs --sub-langs "pl.*,en.*"'
 yyy() { for u in $@; do yy $u; done; }
 
 # ustawienia pass (http://www.passwordstore.org/)

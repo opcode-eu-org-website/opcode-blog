@@ -332,12 +332,12 @@
   <!--  RUN COMMAND  -->
   <keybind key="W-r">
     <action name="Execute">
-      <command>grun</command>
+      <command>gexec</command>
     </action>
   </keybind>
   <keybind key="A-F2">
     <action name="Execute">
-      <command>grun</command>
+      <command>gexec</command>
     </action>
   </keybind>
   <keybind key="W-t">

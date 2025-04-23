@@ -11,7 +11,7 @@ layout: default
 			<a href="{{ site.baseurl }}{{ page.next.url }}">starszy »</a>
 		{%- endif %}
 	</div>
-	<div class="published">{{ page.date.strftime('%Y-%m-%d') }}</div>
+	<div class="published">{{ page.date.strftime('%Y-%m-%d') }} {%- if page.updated %} &nbsp; (aktualizacja: {{ page.updated }}) {%- endif %} </div>
 </div>
 <h1>{{ page.title }}</h1>
 <div class="post">

@@ -37,11 +37,17 @@ fi
 [ -f ~/.Xdefaults ] && xrdb -merge ~/.Xdefaults
 
 # ustawienie źródła wyglądu aplikacji Qt
-export QT_QPA_PLATFORMTHEME=qt5ct
+#export QT_QPA_PLATFORMTHEME=qt5ct
+export QT_QPA_PLATFORMTHEME=kde
 
 
-# ustawienie mapy klawiatury
-setxkbmap -option "kpdl:dot" pl
+# ustawienie mapy klawiatury (polski programisty)
+#  - kropka na klawiaturze numerycznej
+#  - włączenie emulacji myszy klawiaturą numeryczną (aktywowane Shift+NumLock)
+setxkbmap -option "kpdl:dot" -option "keypad:pointerkeys" pl
+
+# wyłączenie timeoutu dla pointerkeys
+xkbset exp =mousekeys
 
 # włączenie numlock
 python3 -c 'from ctypes import *; X11 = cdll.LoadLibrary("libX11.so.6"); X11.XOpenDisplay.restype = c_void_p; display = X11.XOpenDisplay(None); X11.XkbLockModifiers(c_void_p(display), c_uint(0x0100), c_uint(16), c_uint(16)); X11.XCloseDisplay(c_void_p(display))';
@@ -49,6 +55,8 @@ python3 -c 'from ctypes import *; X11 = cdll.LoadLibrary("libX11.so.6"); X11.XOp
 # nielimitowany dostep do X serwera z localhosta (dla schroot)
 xhost +localhost
 
+# dameon notyfikacji ... inaczej programy mogą zwisać na próbie wysłania ich przez dbus ...
+systemctl --user restart xfce4-notifyd
 
 # włączenie lokalnej konfiguracji
 # w dalszej częsci używane zmienne z tego pliku:
@@ -60,7 +68,6 @@ xhost +localhost
 if [ -f "$HOME/.config/openbox/autostart-local.sh" ]; then
         . "$HOME/.config/openbox/autostart-local.sh"
 fi
-
 
 if which xcompmgr && [ "$DONT_RUN_XCOMPMGR" != "true" ] ; then
 	xcompmgr -c &
@@ -79,13 +86,13 @@ if [ "$DONT_RUN_DEFAPPS" != "true" ] ; then
 	
 	# funkcje zamykająca (ukrywająca w tray'u), minimalizująca, maksymalizująca okna
 	win_close() {
-		[ $1 != "" ] && wmctrl -ic $1
+		[ "$1" != "" ] && wmctrl -ic $1
 	}
 	win_hide() {
-		[ $1 != "" ] && wmctrl -b add,hidden -ir $1
+		[ "$1" != "" ] && wmctrl -b add,hidden -ir $1
 	}
 	win_maximize() {
-		[ $1 != "" ] && wmctrl -b add,maximized_vert,maximized_horz -ir $1
+		[ "$1" != "" ] && wmctrl -b add,maximized_vert,maximized_horz -ir $1
 	}
 	
 	# funkcja czekająca na pojawienie sie okna i zwracająca jego identyfikator
@@ -127,6 +134,7 @@ if [ "$DONT_RUN_DEFAPPS" != "true" ] ; then
 	# zmaksymalizuj i ukryj Claws-mail
 	( win=`win_wait 0.2 44 'claws-mail.Claws-mail' 'Claws Mail'`; win_maximize $win; win_close $win; ) &
 fi
+
 
 # ustaw tapetę
 [ "$WALLPAPER_PATH" != "" ] && feh --bg-fill $WALLPAPER_PATH &

@@ -4,9 +4,8 @@ title: Zapiski o konfiguracji Androida
 author: Robert Paciorek
 tags:
 - android
+updated: 2025-01-24
 ---
-
-(aktualizacja 2025-01-24)
 
 ## Subiektywny wybór aplikacji
 

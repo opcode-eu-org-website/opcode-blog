@@ -5,6 +5,7 @@ author: Robert Paciorek
 tags:
 - debian
 - multimedia
+updated: 2025-04-23
 ---
 
 ## Narzedzia
@@ -15,7 +16,7 @@ tags:
 	* `pactl -- set-sink-volume alsa_output.pci-0000_00_14.2.analog-surround-51 105% 70% 85% 70% 70% 70%`
 
 
-## Deamon użytkownika czy systemowy
+## Daemon użytkownika czy systemowy
 
 Domyślnie PulseAudio uruchamiany jest w ramach sesji danego użytkownika.
 Rozwiązanie takie może być kłopotliwe w sytuacji gdy korzystamy z programów odpalanych na prawach innego użytkownika (np. poprzez sudo).
@@ -53,9 +54,54 @@ Można to zrobić poprzez:
 	echo '[hints]' >> /lib/firmware/hda-jack-detect.fw
 	echo 'jack_detect=no' >> /lib/firmware/hda-jack-detect.fw
 
-Operowanie tymi *hints* jest też teoretycznie możliwe poprzez sysfs np.:
+Operowanie tymi *hints* jest też możliwe poprzez sysfs np.:
 
 	echo 'jack_detect=false' > /sys/class/sound/card0/hwC0D0/hints
 	echo '1' > /sys/class/sound/card0/hwC0D0/reconfig
 
 jednak wymaga wtedy zatrzymywania i ponownego uruchamiania usług związanych z audio i nie zawsze działa prawidłowo.
+
+Można to uzyskać poprzez dodanie odpowiednich poleceń do `/etc/systemd/system/pulseaudio.service`:
+
+	# no plug detection on analog card
+	ExecStartPre=/bin/bash -c 'echo jack_detect=no > /sys/class/sound/card2/hwC2D0/hints'
+	ExecStartPre=/bin/bash -c 'echo 1 >  /sys/class/sound/card2/hwC2D0/reconfig'
+
+
+## Wyjścia HDMI/DP jako osobne urządzenia
+
+PulseAudio pozwala na utworzenie z osobnych wyjść HDMI/DP osobnych urządzeń audio co pozwala m.in. na łatwe przełączanie używanego wyjścia. W tym celu należy do konfiguracji pulse audio (np. w `/etc/pulse/system.pa.d/` dla daemona ogólno systemowego lub w `/etc/pulse/default.pa.d/` dla domyślnych ustawień daemona użytkownika) dodać:
+
+	set-card-profile alsa_card.pci-0000_03_00.1 off
+	# ^ potrzebne aby dodanie wirtualnych urządzeń (load-module module-alsa-sink) działało
+	load-module module-alsa-sink device=hw:0,3 sink_name=radeon-dp-0 sink_properties="device.description='Digital Audio DP-0'" channel_map=left,right
+	load-module module-alsa-sink device=hw:0,9 sink_name=radeon-hdmi-0 sink_properties="device.description='Digital Audio HDMI-0'" channel_map=left,right
+
+
+## Ustawienie domyślnego profilu oraz zmiana nazwy urządzenia
+
+Konfiguracja w `/etc/pulse/system.pa.d/` / `/etc/pulse/default.pa.d/` pozwala także np. na ustawienie domyślnego profilu karty dźwiękowej na 5.1 z wejściem stereo i zmianę nazwy tego urządzenia poprzez:
+
+	set-card-profile alsa_card.pci-0000_73_00.6 output:analog-surround-51+input:analog-stereo
+	update-sink-proplist alsa_card.pci-0000_73_00.6 device.description="Analog Audio Surround 5.1"
+
+## Słuchawki i 5.1 w jednym profilu
+
+Możliwe jest pozowlenie na korzystanie z wyjścia słuchawkowego bez potrzeby przełączania się między 5.1 a stereo (ale w takiej konfiguracji na słuchawakach nie będą dostępne wogóle inne kanały niż przednie). W tym celu należy utworzyć nowy profil lub zmodyfikować profil 5.1 w `/usr/share/pulseaudio/alsa-mixer/profile-sets/default.conf`:
+
+	--- /usr/share/pulseaudio/alsa-mixer/profile-sets/default.conf.org	2025-04-19 16:27:23.717456166 +0000
+	+++ /usr/share/pulseaudio/alsa-mixer/profile-sets/default.conf.new	2025-04-19 16:09:47.858124577 +0000
+	@@ -165,7 +165,7 @@
+	[Mapping analog-surround-51]
+	device-strings = surround51:%f
+	channel-map = front-left,front-right,rear-left,rear-right,front-center,lfe
+	-paths-output = analog-output analog-output-lineout analog-output-speaker
+	+paths-output = analog-output analog-output-lineout analog-output-speaker analog-output-headphones analog-output-headphones-2
+	priority = 13
+	direction = output
+
+
+## Więcej informacji i możliwości:
+
+* bardzo użyteczny wpis na Wiki Arch: https://wiki.archlinux.org/title/PulseAudio/Examples
+* opis modułów PulseAudio: https://www.freedesktop.org/wiki/Software/PulseAudio/Documentation/User/Modules/

@@ -24,6 +24,8 @@ Jeżeli chcemy używać innego emulatora terminala niż `konsole` możemy zrezyg
 
 ## Skrót uruchamiający nowe okno
 
+(aktualizacja 2025-04-23: w wersji 24.12.0 z Trixie nie ma potrzeby stosowania tego rozwiązania - polecenie `konqueror` otwiera nowe okno)
+
 Aby wpis w menu / ikona uruchamiała zawsze kolejne okno konqueror'a należy uruchamiać go z podanym URLem do otwarcia – np. `konqueror about:blank` zamiast po prostu `konqueror`.
 Rozwiązuje to też problem z ponownym uruchamianiem konqueror'a gdy wcześniej został zamknięty.
 Aby uniknąć otwierania pustego okna przy odtwarzaniu sesji można zastosować prosty skrypt do jego uruchamiania:
@@ -43,7 +45,7 @@ Skojarzenia plików możemy edytować w ustawieniach Konquerora. Dialog ten moż
 
 ### Dodanie nowej aplikacji
 
-Celem dodania nowej aplikacji obsługującej wiele typów plików można (zamiast pracowicie to wyklikiwać) utworzyć plik `.desktop` w `.local/share/applications/`. Przykłądowo jeżeli chemy mieć możliwość otwarcia dokumentu w nowym oknie edytora Kate możemy utworzyć plik `kate-n.desktop` z następująca treścią:
+Celem dodania nowej aplikacji obsługującej wiele typów plików można (zamiast pracowicie to wyklikiwać) utworzyć plik `.desktop` w `.local/share/applications/`. Przykładowo jeżeli chcemy mieć możliwość otwarcia dokumentu w nowym oknie edytora Kate możemy utworzyć plik `kate-n.desktop` z następująca treścią:
 
 	[Desktop Entry]
 	GenericName=Advanced Text Editor (new window)
@@ -71,7 +73,7 @@ Typy mime konfigurowane są w `~/.local/share/mime/packages/`. Pełniejszy opis 
 
 ## Menu kontekstowe
 
-Konqueror pozwala na dodanie dodatkowych akcji dla poszczególnych typów plików (w taki sposób jak działają akcje "Extract" i "Compress") w tym celu należy utworzyć odpowiedni plik `.desktop` w `~/.local/share/kservices5/ServiceMenus/`.
+Konqueror pozwala na dodanie dodatkowych akcji dla poszczególnych typów plików (w taki sposób jak działają akcje "Extract" i "Compress") w tym celu należy utworzyć odpowiedni plik `.desktop` w `~/.local/share/kservices5/ServiceMenus/` (aktualizacja 2025-04-23: dla kde6 w `~/.local/share/kio/servicemenus` oraz wymagane ustawienie prawa wykonywalności na pliku `.desktop`).
 Przydatną opcją tego typu jest możliwość tekstowej lub hexalnej edycji plików dowolnego typu. Możemy to uzyskać przy pomocy następującego pliku `any_file_edit.desktop`:
 
 	[Desktop Entry]
