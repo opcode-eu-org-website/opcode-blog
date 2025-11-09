@@ -29,7 +29,7 @@
       <action name="Exit" />
     </item>
   </menu>
-  <menu id="system" title="System" label="Sysetem">
+  <menu id="system" title="System" label="System">
     <item label="Reboot">
 	    <action name="Execute"><execute>sudo /sbin/shutdown -r now</execute></action>
     </item>

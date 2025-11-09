@@ -1,0 +1,159 @@
+--- /usr/share/i18n/locales/pl_PL.org	2025-09-14 22:22:16.799521207 +0000
++++ /usr/share/i18n/locales/pl_PL.new	2025-10-16 20:00:30.582232494 +0000
+@@ -50,81 +50,89 @@
+ category "i18n:2012";LC_MEASUREMENT
+ END LC_IDENTIFICATION
+ 
+-LC_COLLATE
+ 
++LC_COLLATE
+ copy "iso14651_t1"
+ 
+-% CLDR collation rules for Polish:
+-% (see: https://unicode.org/cldr/trac/browser/trunk/common/collation/pl.xml)
+-%
+-% &A<ą<<<Ą
+-% &C<ć<<<Ć
+-% &E<ę<<<Ę
+-% &L<ł<<<Ł
+-% &N<ń<<<Ń
+-% &O<ó<<<Ó
+-% &S<ś<<<Ś
+-% &Z<ź<<<Ź<ż<<<Ż
+-%
+-% The following rules implement the same order for glibc.
+-
+-collating-symbol <space>
+-collating-symbol <a-ogonek>
+-collating-symbol <c-acute>
+-collating-symbol <e-ogonek>
+-collating-symbol <l-stroke>
+-collating-symbol <n-acute>
+-collating-symbol <o-acute>
+-collating-symbol <s-acute>
+-collating-symbol <z-acute>
+-collating-symbol <z-dot-above>
+-
+-reorder-after <RES-1>
+-<space>
+-
+-reorder-after <AFTER-A>
+-<a-ogonek>
+-reorder-after <AFTER-C>
+-<c-acute>
+-reorder-after <AFTER-E>
+-<e-ogonek>
+-reorder-after <AFTER-L>
+-<l-stroke>
+-reorder-after <AFTER-N>
+-<n-acute>
+-reorder-after <AFTER-O>
+-<o-acute>
+-reorder-after <AFTER-S>
+-<s-acute>
+-reorder-after <AFTER-Z>
+-<z-acute>
+-<z-dot-above>
+-
+-<U0020> <space>;IGNORE;IGNORE;<U0020>
+-<U00A0> <space>;IGNORE;IGNORE;<U00A0>
+-<U0105> <a-ogonek>;<BASE>;<MIN>;IGNORE % ą
+-<U0104> <a-ogonek>;<BASE>;<CAP>;IGNORE % Ą
+-<U0107> <c-acute>;<BASE>;<MIN>;IGNORE % ć
+-<U0106> <c-acute>;<BASE>;<CAP>;IGNORE % Ć
+-<U0119> <e-ogonek>;<BASE>;<MIN>;IGNORE % ę
+-<U0118> <e-ogonek>;<BASE>;<CAP>;IGNORE % Ę
+-<U0142> <l-stroke>;<BASE>;<MIN>;IGNORE % ł
+-<U0141> <l-stroke>;<BASE>;<CAP>;IGNORE % Ł
+-<U0144> <n-acute>;<BASE>;<MIN>;IGNORE % ń
+-<U0143> <n-acute>;<BASE>;<CAP>;IGNORE % Ń
+-<U00F3> <o-acute>;<BASE>;<MIN>;IGNORE % ó
+-<U00D3> <o-acute>;<BASE>;<CAP>;IGNORE % Ó
+-<U015B> <s-acute>;<BASE>;<MIN>;IGNORE % ś
+-<U015A> <s-acute>;<BASE>;<CAP>;IGNORE % Ś
+-<U017A> <z-acute>;<BASE>;<MIN>;IGNORE % ź
+-<U0179> <z-acute>;<BASE>;<CAP>;IGNORE % Ź
+-<U017C> <z-dot-above>;<BASE>;<MIN>;IGNORE % ż
+-<U017B> <z-dot-above>;<BASE>;<CAP>;IGNORE % Ż
++reorder-after <S20BE>
++<U0020> <U0020>;<BASE>;<MIN>;<U0020> % SPACE
++<U0021> <U0021>;<BASE>;<MIN>;<U0021> % EXCLAMATION MARK
++<U0022> <U0022>;<BASE>;<MIN>;<U0022> % QUOTATION MARK
++<U0023> <U0023>;<BASE>;<MIN>;<U0023> % NUMBER SIGN
++<U0025> <U0025>;<BASE>;<MIN>;<U0025> % PERCENT SIGN
++<U0026> <U0026>;<BASE>;<MIN>;<U0026> % AMPERSAND
++<U0027> <U0027>;<BASE>;<MIN>;<U0027> % APOSTROPHE
++<U0028> <U0028>;<BASE>;<MIN>;<U0028> % LEFT PARENTHESIS
++<U0029> <U0029>;<BASE>;<MIN>;<U0029> % RIGHT PARENTHESIS
++<U002A> <U002A>;<BASE>;<MIN>;<U002A> % ASTERISK
++<U002B> <U002B>;<BASE>;<MIN>;<U002B> % PLUS SIGN
++<U002C> <U002C>;<BASE>;<MIN>;<U002C> % COMMA
++<U002D> <U002D>;<BASE>;<MIN>;<U002D> % HYPHEN-MINUS
++<U002E> <U002E>;<BASE>;<MIN>;<U002E> % FULL STOP
++<U002F> <U002F>;<BASE>;<MIN>;<U002F> % SOLIDUS
++
++reorder-after <S0039>
++<U003A> <U003A>;<BASE>;<MIN>;<U003A> % COLON
++<U003B> <U003B>;<BASE>;<MIN>;<U003B> % SEMICOLON
++<U003C> <U003C>;<BASE>;<MIN>;<U003C> % LESS-THAN SIGN
++<U003D> <U003D>;<BASE>;<MIN>;<U003D> % EQUALS SIGN
++<U003E> <U003E>;<BASE>;<MIN>;<U003E> % GREATER-THAN SIGN
++<U003F> <U003F>;<BASE>;<MIN>;<U003F> % QUESTION MARK
++<U0040> <U0040>;<BASE>;<MIN>;<U0040> % COMMERCIAL AT
++<U005B> <U005B>;<BASE>;<MIN>;<U005B> % LEFT SQUARE BRACKET
++<U005C> <U005C>;<BASE>;<MIN>;<U005C> % REVERSE SOLIDUS
++<U005D> <U005D>;<BASE>;<MIN>;<U005D> % RIGHT SQUARE BRACKET
++<U005E> <U005E>;<BASE>;<MIN>;<U005E> % CIRCUMFLEX ACCENT
++<U005F> <U005F>;<BASE>;<MIN>;<U005F> % LOW LINE
++<U0060> <U0060>;<BASE>;<MIN>;<U0060> % GRAVE ACCENT
++<U007B> <U007B>;<BASE>;<MIN>;<U007B> % LEFT CURLY BRACKET
++<U007C> <U007C>;<BASE>;<MIN>;<U007C> % VERTICAL LINE
++<U007D> <U007D>;<BASE>;<MIN>;<U007D> % RIGHT CURLY BRACKET
++<U007E> <U007E>;<BASE>;<MIN>;<U007E> % TILDE
++
++reorder-after <BEFORE-LATIN>
++<U0041> <U0041>;<BASE>;<CAP>;<U0041>
++<U0104> <U0104>;<BASE>;<CAP>;<U0104>
++<U0042> <U0042>;<BASE>;<CAP>;<U0042>
++<U0043> <U0043>;<BASE>;<CAP>;<U0043>
++<U0106> <U0106>;<BASE>;<CAP>;<U0106>
++<U0044> <U0044>;<BASE>;<CAP>;<U0044>
++<U0045> <U0045>;<BASE>;<CAP>;<U0045>
++<U0118> <U0118>;<BASE>;<CAP>;<U0118>
++<U0046> <U0046>;<BASE>;<CAP>;<U0046>
++<U0047> <U0047>;<BASE>;<CAP>;<U0047>
++<U0048> <U0048>;<BASE>;<CAP>;<U0048>
++<U0049> <U0049>;<BASE>;<CAP>;<U0049>
++<U004A> <U004A>;<BASE>;<CAP>;<U004A>
++<U004B> <U004B>;<BASE>;<CAP>;<U004B>
++<U004C> <U004C>;<BASE>;<CAP>;<U004C>
++<U0141> <U0141>;<BASE>;<CAP>;<U0141>
++<U004D> <U004D>;<BASE>;<CAP>;<U004D>
++<U004E> <U004E>;<BASE>;<CAP>;<U004E>
++<U0143> <U0143>;<BASE>;<CAP>;<U0143>
++<U004F> <U004F>;<BASE>;<CAP>;<U004F>
++<U00D3> <U00D3>;<BASE>;<CAP>;<U00D3>
++<U0050> <U0050>;<BASE>;<CAP>;<U0050>
++<U0051> <U0051>;<BASE>;<CAP>;<U0051>
++<U0052> <U0052>;<BASE>;<CAP>;<U0052>
++<U0053> <U0053>;<BASE>;<CAP>;<U0053>
++<U015A> <U015A>;<BASE>;<CAP>;<U015A>
++<U0054> <U0054>;<BASE>;<CAP>;<U0054>
++<U0055> <U0055>;<BASE>;<CAP>;<U0055>
++<U0056> <U0056>;<BASE>;<CAP>;<U0056>
++<U0057> <U0057>;<BASE>;<CAP>;<U0057>
++<U0058> <U0058>;<BASE>;<CAP>;<U0058>
++<U0059> <U0059>;<BASE>;<CAP>;<U0059>
++<U005A> <U005A>;<BASE>;<CAP>;<U005A>
++<U017B> <U017B>;<BASE>;<CAP>;<U017B>
++<U0179> <U0179>;<BASE>;<CAP>;<U0179>
+ 
+ reorder-end
+ 
+ END LC_COLLATE
+ 
++
++
+ LC_CTYPE
+ copy "i18n"
+ 

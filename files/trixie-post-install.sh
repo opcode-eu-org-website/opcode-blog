@@ -40,7 +40,7 @@ pkg__04_NETBASE__list="iproute2 nftables iputils-ping isc-dhcp-client
 	net-tools iputils-tracepath bind9-dnsutils mtr-tiny
 	ethtool vlan bridge-utils iptables arptables ebtables
 	netcat-openbsd ncat socat inetutils-telnet
-	wget curl httrack ntpdate debootstrap
+	wget curl httrack ntpsec-ntpdate debootstrap
 	openssh-client openssh-server sshfs sshguard"
 
 pkg__05_NETWIFI__info="wireless network"
@@ -83,7 +83,7 @@ pkg__31_DESKTOP__list="xorg slim openbox fbpanel wmctrl xdotool
 
 pkg__32_DESKTOP_MULTIMEDIA__info="X11 desktop enviroment - multimedia & pdf"
 pkg__32_DESKTOP_MULTIMEDIA__list="alsa-utils pavucontrol
-	vlc mpv celluloid mplayer xpdf
+	vlc mpv smplayer celluloid mplayer xpdf
 	vlc-plugin-access-extra vlc-plugin-fluidsynth vlc-plugin-svg"
 	# old: pavumeter
 

@@ -1,0 +1,49 @@
+diff --git a/src/kitemviews/kfileitemmodel.cpp b/src/kitemviews/kfileitemmodel.cpp
+index 9bba37e78..8d8dda956 100644
+--- a/src/kitemviews/kfileitemmodel.cpp
++++ b/src/kitemviews/kfileitemmodel.cpp
+@@ -2091,6 +2091,28 @@ void KFileItemModel::sort(const QList<KFileItemModel::ItemData *>::iterator &beg
+     }
+ }
+ 
++static void stringToWCharArray(QVarLengthArray<wchar_t> &ret, QStringView string)
++{
++    ret.resize(string.length());
++    qsizetype len = string.toWCharArray(ret.data());
++    ret.resize(len+1);
++    ret[len] = 0;
++}
++
++static int lcompare(QStringView s1, QStringView s2)
++{
++    if (!s1.size())
++        return s2.size() ? -1 : 0;
++    if (!s2.size())
++        return +1;
++
++    QVarLengthArray<wchar_t> array1, array2;
++    stringToWCharArray(array1, s1);
++    stringToWCharArray(array2, s2);
++    return std::wcscoll(array1.constData(), array2.constData());
++}
++
++
+ int KFileItemModel::sortRoleCompare(const ItemData *a, const ItemData *b, const QCollator &collator) const
+ {
+     // This function must never return 0, because that would break stable
+@@ -2243,13 +2265,13 @@ int KFileItemModel::sortRoleCompare(const ItemData *a, const ItemData *b, const
+     }
+ 
+     // Fallback #1: Compare the text of the items
+-    result = stringCompare(itemA.text(), itemB.text(), collator);
++    result = lcompare(itemA.name(), itemB.name());
+     if (result != 0) {
+         return result;
+     }
+ 
+     // Fallback #2: KFileItem::text() may not be unique in case UDS_DISPLAY_NAME is used
+-    result = stringCompare(itemA.name(), itemB.name(), collator);
++    result = lcompare(itemA.name(), itemB.name());
+     if (result != 0) {
+         return result;
+     }

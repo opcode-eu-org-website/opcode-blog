@@ -1,0 +1,555 @@
+diff --git a/src/settings/dolphin_generalsettings.kcfg b/src/settings/dolphin_generalsettings.kcfg
+index 4a55b4bde..0c357e302 100644
+--- a/src/settings/dolphin_generalsettings.kcfg
++++ b/src/settings/dolphin_generalsettings.kcfg
+@@ -66,9 +66,14 @@
+             <label>Should the filter bar be shown</label>
+             <default>false</default>
+         </entry>
+-        <entry name="GlobalViewProps" type="Bool">
+-            <label>Should the view properties be used for all folders</label>
+-            <default>true</default>
++        <entry name="ViewPropsMode" type="Enum">
++            <label>What view properties should be used</label>
++            <choices>
++                <choice name="Global" />
++                <choice name="ManualOrGlobal" />
++                <choice name="Local" />
++            </choices>
++            <default>0</default>
+         </entry>
+         <entry name="BrowseThroughArchives" type="Bool">
+             <label>Browse through archives</label>
+diff --git a/src/settings/viewmodes/generalviewsettingspage.cpp b/src/settings/viewmodes/generalviewsettingspage.cpp
+index 988f243c1..d8ce2284d 100644
+--- a/src/settings/viewmodes/generalviewsettingspage.cpp
++++ b/src/settings/viewmodes/generalviewsettingspage.cpp
+@@ -39,6 +39,14 @@ GeneralViewSettingsPage::GeneralViewSettingsPage(const QUrl &url, QWidget *paren
+     globalViewPropsLabel->setWordWrap(true);
+     globalViewPropsLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+ 
++    m_manualOrGlobalViewProps = new QRadioButton(i18nc("@option:radio", "Use manually created display style configuration from .desktop file."));
++    // i18n: The information in this sentence contradicts the preceding sentence. That's what the word "still" is communicating.
++    // The previous sentence is "Use common display style for all folders".
++    QLabel *manualOrGlobalViewPropsLabel = new QLabel(i18nc("@info", "If .desktop file do not exist, use common display style for all folders."));
++    manualOrGlobalViewPropsLabel->setFont(QFontDatabase::systemFont(QFontDatabase::SmallestReadableFont));
++    manualOrGlobalViewPropsLabel->setWordWrap(true);
++    manualOrGlobalViewPropsLabel->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
++
+     m_localViewProps = new QRadioButton(i18nc("@option:radio", "Remember display style for each folder"));
+     QLabel *localViewPropsLabel = new QLabel(i18nc("@info",
+                                                    "Dolphin will add file system metadata to folders you change view properties for. If that is not possible, "
+@@ -51,9 +59,12 @@ GeneralViewSettingsPage::GeneralViewSettingsPage(const QUrl &url, QWidget *paren
+ 
+     QButtonGroup *viewGroup = new QButtonGroup(this);
+     viewGroup->addButton(m_globalViewProps);
++    viewGroup->addButton(m_manualOrGlobalViewProps);
+     viewGroup->addButton(m_localViewProps);
+     topLayout->addRow(i18nc("@title:group", "Display style: "), m_globalViewProps);
+     topLayout->addRow(QString(), globalViewPropsLabel);
++    topLayout->addRow(QString(), m_manualOrGlobalViewProps);
++    topLayout->addRow(QString(), manualOrGlobalViewPropsLabel);
+     topLayout->addRow(QString(), m_localViewProps);
+     topLayout->addRow(QString(), localViewPropsLabel);
+     topLayout->addRow(QString(), m_dynamicView);
+@@ -184,6 +195,7 @@ GeneralViewSettingsPage::GeneralViewSettingsPage(const QUrl &url, QWidget *paren
+     loadSettings();
+ 
+     connect(m_localViewProps, &QRadioButton::toggled, this, &GeneralViewSettingsPage::changed);
++    connect(m_manualOrGlobalViewProps, &QRadioButton::toggled, this, &GeneralViewSettingsPage::changed);
+     connect(m_globalViewProps, &QRadioButton::toggled, this, &GeneralViewSettingsPage::changed);
+ 
+     connect(m_openArchivesAsFolder, &QCheckBox::toggled, this, &GeneralViewSettingsPage::changed);
+@@ -208,8 +220,13 @@ void GeneralViewSettingsPage::applySettings()
+ {
+     GeneralSettings *settings = GeneralSettings::self();
+     ViewProperties props(m_url); // read current view properties
+-    const bool useGlobalViewProps = m_globalViewProps->isChecked();
+-    settings->setGlobalViewProps(useGlobalViewProps);
++    int viewPropsMode = GeneralSettings::EnumViewPropsMode::Global;
++    if (m_localViewProps->isChecked()) {
++        viewPropsMode = GeneralSettings::EnumViewPropsMode::Local;
++    } else if (m_manualOrGlobalViewProps->isChecked()) {
++        viewPropsMode = GeneralSettings::EnumViewPropsMode::ManualOrGlobal;
++    }
++    settings->setViewPropsMode(viewPropsMode);
+ #if HAVE_BALOO
+     settings->setShowToolTips(m_showToolTips->isChecked());
+ #endif
+@@ -222,7 +239,7 @@ void GeneralViewSettingsPage::applySettings()
+     settings->setDoubleClickViewCustomAction(m_doubleClickViewCustomAction->text());
+     settings->setDoubleClickViewAction(m_doubleClickViewComboBox->currentData().toString());
+     settings->save();
+-    if (useGlobalViewProps) {
++    if (viewPropsMode == GeneralSettings::EnumViewPropsMode::Global) {
+         // Remember the global view properties by applying the current view properties.
+         // It is important that GeneralSettings::globalViewProps() is set before
+         // the class ViewProperties is used, as ViewProperties uses this setting
+@@ -242,7 +259,6 @@ void GeneralViewSettingsPage::restoreDefaults()
+ 
+ void GeneralViewSettingsPage::loadSettings()
+ {
+-    const bool useGlobalViewProps = GeneralSettings::globalViewProps();
+     m_openArchivesAsFolder->setChecked(GeneralSettings::browseThroughArchives());
+     m_autoExpandFolders->setChecked(GeneralSettings::autoExpandFolders());
+ #if HAVE_BALOO
+@@ -253,8 +269,9 @@ void GeneralViewSettingsPage::loadSettings()
+     m_hideXtrashFiles->setChecked(GeneralSettings::hideXTrashFile());
+     m_dynamicView->setChecked(GeneralSettings::dynamicView());
+ 
+-    m_localViewProps->setChecked(!useGlobalViewProps);
+-    m_globalViewProps->setChecked(useGlobalViewProps);
++    m_localViewProps->setChecked(GeneralSettings::viewPropsMode() == GeneralSettings::EnumViewPropsMode::Local);
++    m_manualOrGlobalViewProps->setChecked(GeneralSettings::viewPropsMode() == GeneralSettings::EnumViewPropsMode::ManualOrGlobal);
++    m_globalViewProps->setChecked(GeneralSettings::viewPropsMode() == GeneralSettings::EnumViewPropsMode::Global);
+     int index = m_doubleClickViewComboBox->findData(GeneralSettings::doubleClickViewAction());
+     m_doubleClickViewComboBox->setCurrentIndex((index == -1) ? 0 : index);
+     m_doubleClickViewCustomAction->setText(GeneralSettings::doubleClickViewCustomAction());
+diff --git a/src/settings/viewmodes/generalviewsettingspage.h b/src/settings/viewmodes/generalviewsettingspage.h
+index 77ab004a6..92e037852 100644
+--- a/src/settings/viewmodes/generalviewsettingspage.h
++++ b/src/settings/viewmodes/generalviewsettingspage.h
+@@ -42,6 +42,7 @@ private:
+ private:
+     QUrl m_url;
+     QRadioButton *m_localViewProps = nullptr;
++    QRadioButton *m_manualOrGlobalViewProps = nullptr;
+     QRadioButton *m_globalViewProps = nullptr;
+ #if HAVE_BALOO
+     QCheckBox *m_showToolTips = nullptr;
+diff --git a/src/settings/viewpropertiesdialog.cpp b/src/settings/viewpropertiesdialog.cpp
+index 37c3d539b..5bd6c6150 100644
+--- a/src/settings/viewpropertiesdialog.cpp
++++ b/src/settings/viewpropertiesdialog.cpp
+@@ -52,10 +52,13 @@ ViewPropertiesDialog::ViewPropertiesDialog(DolphinView *dolphinView)
+     , m_applyToCurrentFolder(nullptr)
+     , m_applyToSubFolders(nullptr)
+     , m_applyToAllFolders(nullptr)
++    , m_applyToDefault(nullptr)
++    , m_applyToView(nullptr)
+     , m_useAsDefault(nullptr)
+ {
+     Q_ASSERT(dolphinView);
+-    const bool useGlobalViewProps = GeneralSettings::globalViewProps();
++    const bool useLocalViewProps = GeneralSettings::viewPropsMode() == GeneralSettings::EnumViewPropsMode::Local;
++    const bool useManualOrGlobalViewProps = GeneralSettings::viewPropsMode() == GeneralSettings::EnumViewPropsMode::ManualOrGlobal;
+ 
+     setWindowTitle(i18nc("@title:window", "View Display Style"));
+ 
+@@ -161,7 +164,7 @@ ViewPropertiesDialog::ViewPropertiesDialog(DolphinView *dolphinView)
+ 
+     // Only show the following settings if the view properties are remembered
+     // for each directory:
+-    if (!useGlobalViewProps) {
++    if (useLocalViewProps) {
+         // create 'Apply View Properties To' group
+         m_applyToCurrentFolder = new QRadioButton(i18nc("@option:radio Apply View Properties To", "Current folder"));
+         m_applyToCurrentFolder->setChecked(true);
+@@ -187,6 +190,34 @@ ViewPropertiesDialog::ViewPropertiesDialog(DolphinView *dolphinView)
+         connect(m_applyToSubFolders, &QRadioButton::clicked, this, &ViewPropertiesDialog::markAsDirty);
+         connect(m_applyToAllFolders, &QRadioButton::clicked, this, &ViewPropertiesDialog::markAsDirty);
+         connect(m_useAsDefault, &QCheckBox::clicked, this, &ViewPropertiesDialog::markAsDirty);
++    } else if (useManualOrGlobalViewProps) {
++        // create 'Apply View Properties To' group
++        m_applyToCurrentFolder = new QRadioButton(i18nc("@option:radio Apply View Properties To", "Current folder"));
++        m_applyToDefault = new QRadioButton(i18nc("@option:radio Apply View Properties To", "Default view settings"));
++        if (m_viewProps->isUsingManualConfig()) {
++            m_applyToView = new QRadioButton(i18nc("@option:radio Apply View Properties To", "Current view (do not remember)"));
++            m_applyToCurrentFolder->setChecked(true);
++        } else {
++            m_applyToDefault->setChecked(true);
++        }
++
++        QButtonGroup *applyGroup = new QButtonGroup(this);
++        applyGroup->addButton(m_applyToCurrentFolder);
++        if (m_applyToView)
++            applyGroup->addButton(m_applyToView);
++        applyGroup->addButton(m_applyToDefault);
++
++        layout->addItem(new QSpacerItem(0, Dolphin::VERTICAL_SPACER_HEIGHT, QSizePolicy::Fixed, QSizePolicy::Fixed));
++
++        layout->addRow(i18nc("@title:group", "Apply to:"), m_applyToCurrentFolder);
++        if (m_applyToView)
++            layout->addRow(QString(), m_applyToView);
++        layout->addRow(QString(), m_applyToDefault);
++
++        connect(m_applyToCurrentFolder, &QRadioButton::clicked, this, &ViewPropertiesDialog::markAsDirty);
++        if (m_applyToView)
++            connect(m_applyToView, &QRadioButton::clicked, this, &ViewPropertiesDialog::markAsDirty);
++        connect(m_applyToDefault, &QRadioButton::clicked, this, &ViewPropertiesDialog::markAsDirty);
+     }
+ 
+     layout->addItem(new QSpacerItem(0, Dolphin::VERTICAL_SPACER_HEIGHT, QSizePolicy::Fixed, QSizePolicy::Fixed));
+@@ -347,18 +378,18 @@ void ViewPropertiesDialog::applyViewProperties()
+ 
+     // If the user selected 'Apply To All Folders' the view properties implicitly
+     // are also used as default for new folders.
+-    const bool useAsDefault = applyToAllFolders || (m_useAsDefault && m_useAsDefault->isChecked());
++    const bool useAsDefault = applyToAllFolders || (m_useAsDefault && m_useAsDefault->isChecked()) || (m_applyToDefault && m_applyToDefault->isChecked());
+     if (useAsDefault) {
+         // For directories where no .directory file is available, the .directory
+         // file stored for the global view properties is used as fallback. To update
+         // this file we temporary turn on the global view properties mode.
+-        Q_ASSERT(!GeneralSettings::globalViewProps());
+ 
+-        GeneralSettings::setGlobalViewProps(true);
++        int m_ViewPropsMode = GeneralSettings::viewPropsMode();
++        GeneralSettings::setViewPropsMode(GeneralSettings::EnumViewPropsMode::Global);
+         ViewProperties defaultProps(m_dolphinView->url());
+         defaultProps.setDirProperties(*m_viewProps);
+         defaultProps.save();
+-        GeneralSettings::setGlobalViewProps(false);
++        GeneralSettings::setViewPropsMode(m_ViewPropsMode);
+     }
+ 
+     if (applyToAllFolders) {
+@@ -374,6 +405,20 @@ void ViewPropertiesDialog::applyViewProperties()
+         settings->save();
+     }
+ 
++    bool saveManualConfig = (GeneralSettings::viewPropsMode() == GeneralSettings::EnumViewPropsMode::ManualOrGlobal) && m_applyToCurrentFolder->isChecked();
++    m_viewProps->save(saveManualConfig); // (when this is new created config in ManualOrGlobal mode) need save before apply to avoid unnecessary global settings change
++
++    if (saveManualConfig) {
++        // check if written config are using manual config
++        const ViewProperties props(m_dolphinView->url());
++        if (!props.isUsingManualConfig()) {
++            // unable to set manual config for this folder, we can't continue to avoid global settings change
++            const QString text(i18nc("@info", "Can't save view display style for this folder."));
++            KMessageBox::error(this, text); 
++            return;
++        }
++    }
++    
+     m_dolphinView->setViewMode(m_viewProps->viewMode());
+     m_dolphinView->setSortRole(m_viewProps->sortRole());
+     m_dolphinView->setSortOrder(m_viewProps->sortOrder());
+@@ -384,8 +429,6 @@ void ViewPropertiesDialog::applyViewProperties()
+     m_dolphinView->setPreviewsShown(m_viewProps->previewsShown());
+     m_dolphinView->setHiddenFilesShown(m_viewProps->hiddenFilesShown());
+ 
+-    m_viewProps->save();
+-
+     markAsDirty(false);
+ }
+ 
+diff --git a/src/settings/viewpropertiesdialog.h b/src/settings/viewpropertiesdialog.h
+index d1f056fbb..ffc9c78a1 100644
+--- a/src/settings/viewpropertiesdialog.h
++++ b/src/settings/viewpropertiesdialog.h
+@@ -75,6 +75,8 @@ private:
+     QRadioButton *m_applyToCurrentFolder;
+     QRadioButton *m_applyToSubFolders;
+     QRadioButton *m_applyToAllFolders;
++    QRadioButton *m_applyToDefault;
++    QRadioButton *m_applyToView;
+     QCheckBox *m_useAsDefault;
+     QListWidget *m_listWidget;
+ };
+diff --git a/src/tests/dolphinmainwindowtest.cpp b/src/tests/dolphinmainwindowtest.cpp
+index 6e702b0a3..42242857f 100644
+--- a/src/tests/dolphinmainwindowtest.cpp
++++ b/src/tests/dolphinmainwindowtest.cpp
+@@ -1112,7 +1112,7 @@ void DolphinMainWindowTest::testViewModeAfterDynamicView()
+     QCOMPARE(view->m_mode, DolphinView::DetailsView);
+ 
+     // test for local views
+-    settings->setGlobalViewProps(false);
++    settings->setViewPropsMode(GeneralSettings::EnumViewPropsMode::Local);
+     settings->save();
+ 
+     // go to child folder and check DynamicViewPassed key in view properties as well as view mode
+diff --git a/src/tests/viewpropertiestest.cpp b/src/tests/viewpropertiestest.cpp
+index 1836f0445..36e0b138d 100644
+--- a/src/tests/viewpropertiestest.cpp
++++ b/src/tests/viewpropertiestest.cpp
+@@ -32,7 +32,7 @@ private Q_SLOTS:
+     void testUseAsCustomDefaultViewSettings();
+ 
+ private:
+-    bool m_globalViewProps;
++    int m_ViewPropsMode;
+     TestDir *m_testDir;
+ };
+ 
+@@ -46,8 +46,8 @@ void ViewPropertiesTest::initTestCase()
+ 
+ void ViewPropertiesTest::init()
+ {
+-    m_globalViewProps = GeneralSettings::self()->globalViewProps();
+-    GeneralSettings::self()->setGlobalViewProps(false);
++    m_ViewPropsMode = GeneralSettings::self()->viewPropsMode();
++    GeneralSettings::self()->setViewPropsMode(GeneralSettings::EnumViewPropsMode::Local);
+     GeneralSettings::self()->save();
+ 
+     // It is mandatory to create the test-directory inside the home-directory
+@@ -62,7 +62,7 @@ void ViewPropertiesTest::cleanup()
+     delete m_testDir;
+     m_testDir = nullptr;
+ 
+-    GeneralSettings::self()->setGlobalViewProps(m_globalViewProps);
++    GeneralSettings::self()->setViewPropsMode(m_ViewPropsMode);
+     GeneralSettings::self()->save();
+ }
+ 
+@@ -307,11 +307,11 @@ void ViewPropertiesTest::testUseAsDefaultViewSettings()
+ 
+     // Equivalent of useAsDefault in ViewPropertiesDialog
+     // This sets the DetailsView as default viewMode
+-    GeneralSettings::setGlobalViewProps(true);
++    GeneralSettings::setViewPropsMode(GeneralSettings::EnumViewPropsMode::Global);
+     globalProps.setViewMode(newDefaultViewMode);
+     globalProps.setDirProperties(globalProps);
+     globalProps.save();
+-    GeneralSettings::setGlobalViewProps(false);
++    GeneralSettings::setViewPropsMode(GeneralSettings::EnumViewPropsMode::Local);
+ 
+     // Load default data
+     QScopedPointer<ViewProperties> globalDirProperties(new ViewProperties(globalPropertiesPath));
+@@ -356,11 +356,11 @@ void ViewPropertiesTest::testUseAsCustomDefaultViewSettings()
+ 
+     // Equivalent of useAsDefault in ViewPropertiesDialog
+     // This sets the DetailsView as default viewMode
+-    GeneralSettings::setGlobalViewProps(true);
++    GeneralSettings::setViewPropsMode(GeneralSettings::EnumViewPropsMode::Global);
+     globalProps.setViewMode(DolphinView::Mode::DetailsView);
+     globalProps.setDirProperties(globalProps);
+     globalProps.save();
+-    GeneralSettings::setGlobalViewProps(false);
++    GeneralSettings::setViewPropsMode(GeneralSettings::EnumViewPropsMode::Local);
+ 
+     // Make sure globalDirProperties are not empty, so they will be used
+     auto globalDirPropString = globalDirMetadata.attribute(QStringLiteral("kde.fm.viewproperties#1"));
+diff --git a/src/views/dolphinview.cpp b/src/views/dolphinview.cpp
+index d147a87f6..f07d6582c 100644
+--- a/src/views/dolphinview.cpp
++++ b/src/views/dolphinview.cpp
+@@ -2360,7 +2360,7 @@ void DolphinView::applyDynamicView()
+         return;
+     }
+ 
+-    props.setAutoSaveEnabled(!GeneralSettings::globalViewProps());
++    props.setAutoSaveEnabled(GeneralSettings::viewPropsMode() == GeneralSettings::EnumViewPropsMode::Local);
+     props.setDynamicViewPassed(true);
+     props.setViewMode(IconsView);
+     applyViewProperties(props);
+diff --git a/src/views/viewproperties.cpp b/src/views/viewproperties.cpp
+index 8bf3b2531..2289e1c42 100644
+--- a/src/views/viewproperties.cpp
++++ b/src/views/viewproperties.cpp
+@@ -104,10 +104,12 @@ ViewPropertySettings *ViewProperties::defaultProperties() const
+ ViewProperties::ViewProperties(const QUrl &url)
+     : m_changedProps(false)
+     , m_autoSave(true)
++    , m_usingManualOrGlobalConfig(false)
+     , m_node(nullptr)
+ {
+     GeneralSettings *settings = GeneralSettings::self();
+-    const bool useGlobalViewProps = settings->globalViewProps() || url.isEmpty();
++    const bool useGlobalViewProps = settings->viewPropsMode() == GeneralSettings::EnumViewPropsMode::Global || url.isEmpty();
++    const bool useManualOrGlobalViewProps = settings->viewPropsMode() == GeneralSettings::EnumViewPropsMode::ManualOrGlobal;
+     bool useSearchView = false;
+     bool useTrashView = false;
+     bool useRecentDocumentsView = false;
+@@ -128,7 +130,7 @@ ViewProperties::ViewProperties(const QUrl &url)
+     } else if (url.scheme() == QLatin1String("timeline")) {
+         m_filePath = destinationDir(QStringLiteral("timeline"));
+         useRecentDocumentsView = true;
+-    } else if (useGlobalViewProps) {
++    } else if (useGlobalViewProps || useManualOrGlobalViewProps) {
+         m_filePath = destinationDir(QStringLiteral("global"));
+     } else if (url.isLocalFile()) {
+         m_filePath = url.toLocalFile();
+@@ -160,7 +162,59 @@ ViewProperties::ViewProperties(const QUrl &url)
+         m_filePath = destinationDir(QStringLiteral("remote")) + m_filePath;
+     }
+ 
+-    m_node = loadProperties(m_filePath);
++    if (useManualOrGlobalViewProps) {
++        m_realFilePath = url.toLocalFile();
++        const QString settingsFilePath = m_realFilePath + QDir::separator() + ViewPropertiesFileName;
++        if (QFile::exists(settingsFilePath)) {
++            // get copy of default into temporary file
++            std::unique_ptr<QTemporaryFile> tempFile(new QTemporaryFile());
++            tempFile->setAutoRemove(false);
++            if(tempFile->open()) {
++                const QString defaultFile = destinationDir(QStringLiteral("global")) + QDir::separator() + ViewPropertiesFileName;
++                if (QFile::exists(defaultFile)) {
++                    QFile::remove(tempFile->fileName());
++                    QFile::copy(defaultFile, tempFile->fileName());
++                }
++                KFileMetaData::UserMetaData metadata(destinationDir(QStringLiteral("global")));
++                if (metadata.isSupported()) {
++                    const QString viewPropertiesString = metadata.attribute(QStringLiteral("kde.fm.viewproperties#1"));
++                    if (!viewPropertiesString.isEmpty()) {
++                        QFile outputFile(tempFile->fileName());
++                        outputFile.open(QIODevice::WriteOnly);
++                        outputFile.write(viewPropertiesString.toUtf8());
++                        outputFile.close();
++                    }
++                }
++
++                // copy read only config into temporary file
++                auto tempConfig = KConfig(tempFile->fileName(), KConfig::SimpleConfig);
++                auto manualConfig = KConfig(settingsFilePath, KConfig::SimpleConfig);
++                for (const auto &group : manualConfig.groupList()) {
++                    if (group == QStringLiteral("Dolphin") || group == QStringLiteral("Settings")) {
++                        for (auto [key, value] : manualConfig.group(group).entryMap().asKeyValueRange()) {
++                            tempConfig.group(group).writeEntry(key, value);
++                        }
++                        m_usingManualOrGlobalConfig = true;
++                    }
++                }
++
++                if (m_usingManualOrGlobalConfig) {
++                    tempConfig.sync();
++                    m_node = new ViewPropertySettings(KSharedConfig::openConfig(tempFile->fileName(), KConfig::SimpleConfig));
++                } else {
++                    QFile::remove(tempFile->fileName());
++                }
++            } else {
++                m_node = new ViewPropertySettings(KSharedConfig::openConfig(settingsFilePath, KConfig::SimpleConfig));
++                m_usingManualOrGlobalConfig = true;
++            }
++        }
++    }
++
++    // if read only view props are not used
++    if (m_node == nullptr) {
++        m_node = loadProperties(m_filePath);
++    }
+ 
+     bool useDefaultSettings = useGlobalViewProps ||
+         // If the props timestamp is too old,
+@@ -491,14 +545,47 @@ bool ViewProperties::isAutoSaveEnabled() const
+     return m_autoSave;
+ }
+ 
++bool ViewProperties::isUsingManualConfig() const
++{
++    return m_usingManualOrGlobalConfig;
++}
++
+ void ViewProperties::update()
+ {
+     m_changedProps = true;
+     m_node->setTimestamp(QDateTime::currentDateTime());
+ }
+ 
+-void ViewProperties::save()
++void ViewProperties::save(bool saveManualConfig)
+ {
++    if (saveManualConfig) {
++        const QString settingsFilePath = m_realFilePath + QDir::separator() + ViewPropertiesFileName;
++        
++        m_node->save();
++
++        qCDebug(DolphinDebug) << "Saving manual view-properties for" << m_realFilePath << " to " << settingsFilePath << " based on " << m_node->config()->name();
++        
++        if (m_node->config()->name() != settingsFilePath) {
++            if (QFile::exists(settingsFilePath)) {
++                // copy settings to existed .directory
++                auto manualConfig = KConfig(settingsFilePath, KConfig::SimpleConfig);
++                for (const auto &group : m_node->config()->groupList()) {
++                    for (auto [key, value] : m_node->config()->group(group).entryMap().asKeyValueRange()) {
++                        manualConfig.group(group).writeEntry(key, value);
++                    }
++                }
++                manualConfig.sync();
++            } else {
++                // create new .directory
++                QFile::copy(m_node->config()->name(), settingsFilePath);
++            }
++        }
++
++        return;
++    } else if (m_usingManualOrGlobalConfig) {
++        return;
++    }
++
+     qCDebug(DolphinDebug) << "Saving view-properties to" << m_filePath;
+ 
+     auto cleanDotDirectoryFile = [this]() {
+@@ -530,26 +617,31 @@ void ViewProperties::save()
+     if (metaData.isSupported()) {
+         const auto metaDataKey = QStringLiteral("kde.fm.viewproperties#1");
+ 
+-        const auto items = m_node->items();
+-        const auto defaultConfig = defaultProperties();
+         bool allDefault = true;
+-        for (const auto item : items) {
+-            if (item->name() == "Timestamp") {
+-                continue;
+-            }
+-            if (item->name() == "Version") {
+-                if (m_node->version() != CurrentViewPropertiesVersion) {
++        if (m_filePath != this->destinationDir(QStringLiteral("global"))) {
++            const auto items = m_node->items();
++            const auto defaultConfig = defaultProperties();
++            for (const auto item : items) {
++                if (item->name() == "Timestamp") {
++                    continue;
++                }
++                if (item->name() == "Version") {
++                    if (m_node->version() != CurrentViewPropertiesVersion) {
++                        allDefault = false;
++                        break;
++                    } else {
++                        continue;
++                    }
++                }
++                auto defaultItem = defaultConfig->findItem(item->name());
++                if (!defaultItem || defaultItem->property() != item->property()) {
+                     allDefault = false;
+                     break;
+-                } else {
+-                    continue;
+                 }
+             }
+-            auto defaultItem = defaultConfig->findItem(item->name());
+-            if (!defaultItem || defaultItem->property() != item->property()) {
+-                allDefault = false;
+-                break;
+-            }
++        } else {
++            // always save default config
++            allDefault = false;
+         }
+ 
+         if (allDefault) {
+diff --git a/src/views/viewproperties.h b/src/views/viewproperties.h
+index bee1e7330..6b279afd2 100644
+--- a/src/views/viewproperties.h
++++ b/src/views/viewproperties.h
+@@ -99,6 +99,8 @@ public:
+      */
+     void setAutoSaveEnabled(bool autoSave);
+     bool isAutoSaveEnabled() const;
++    
++    bool isUsingManualConfig() const;
+ 
+     void update();
+ 
+@@ -108,8 +110,11 @@ public:
+      * invoked in the destructor, if
+      * ViewProperties::isAutoSaveEnabled() returns true and
+      * at least one property has been changed.
++     * 
++     * if \a saveManualConfig is true .directory file
++     * for ManualOrGlobal view props mode will be saved
+      */
+-    void save();
++    void save(bool saveManualConfig = false);
+ 
+     /**
+      * Returns the destination directory path where the view
+@@ -166,7 +171,9 @@ private:
+ private:
+     bool m_changedProps;
+     bool m_autoSave;
++    bool m_usingManualOrGlobalConfig;
+     QString m_filePath;
++    QString m_realFilePath;
+     ViewPropertySettings *m_node;
+ };
+ 
