@@ -14,7 +14,6 @@ Detekcja odłączonego od zasilania monitora jest możliwa dzięki podawaniu do 
 
 Podejście takie upośledza funkcjonowanie HDP i wymaga programowego wymuszenia detekcji monitora. Może to być zrealizowane poprzez `echo on > /sys/class/drm/card0-DP-1/status` (gdzie `card0-DP-1` określa kartę graficzną i wyjście do której podłaczony jest monitor). Polecenie to powinno być wykonane tuż przed lub po włączeniu monitora, gdyż w przeciwnym razie taki dostępny monitor bez danych EDID będzie problematyczny np. w `xrandr`. Następnie należy włączyć monitor w X11 z użyciem `xrandr`. Całość może być realizowana skryptem:
 
-
 	echo on > /sys/class/drm/card0-DP-1/status
 	
 	# FIZYCZNE WŁĄCZENIE ZASILANIA DLA MONITORA
@@ -37,3 +36,7 @@ Aby wyeliminować ten problem zaniku audio można dodać ciągłe generowanie sy
 	# [powinno być ustawione bardzo cicho (1%) w mikserze
 
 (gdzie `radeon-dp-0` jest wyjściem pulse audio związanym z tym wyjściem DP do którego podłaczony jest dodatkowy monitor z użyciem konwertera DP→HDMI).
+
+Alternatywnie uruchamianie generowania tego sinusa można dodać do skryptu włączającego drugi monitor poprzez dodanie po komendzie restartu pulseaudio:
+
+	echo 'load-module module-sine sink=radeon-dp-0' | sudo PULSE_RUNTIME_PATH=/var/run/pulse -u pulse pacmd

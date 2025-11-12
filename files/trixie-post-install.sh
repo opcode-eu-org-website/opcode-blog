@@ -189,6 +189,7 @@ pkg__63_DEVUTILS__info="Engineering: utils"
 pkg__63_DEVUTILS__list="git subversion mercurial bzr patch
 	gnuplot-x11
 	xutils-dev devscripts cpio
+	vbindiff bvi
 	xalan xmlstarlet libsaxonb-java"
 	# old: pythoncad
 
