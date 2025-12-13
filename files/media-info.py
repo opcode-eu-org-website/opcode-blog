@@ -1,3 +1,6 @@
+# This is an unupdated archived version, for the current version see https://bitbucket.org/OpCode-eu-org/DesktopConfig
+# To jest nieaktualizowana wersja archiwalna, aby zapoznać się z aktualną wersją zobacz https://bitbucket.org/OpCode-eu-org/DesktopConfig
+
 #!/usr/bin/python3
 
 import sys, json, subprocess

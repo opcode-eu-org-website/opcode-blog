@@ -78,7 +78,7 @@ pkg__30_NOACTION__info=""
 
 pkg__31_DESKTOP__info="X11 desktop enviroment"
 pkg__31_DESKTOP__list="xorg slim openbox fbpanel wmctrl xdotool
-	feh xcompmgr onboard gexec xterm
+	feh xcompmgr onboard gexec xterm vim-gtk3
 	xfce4-notifyd"
 
 pkg__32_DESKTOP_MULTIMEDIA__info="X11 desktop enviroment - multimedia & pdf"
