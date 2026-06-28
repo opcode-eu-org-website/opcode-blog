@@ -1,0 +1,75 @@
+diff --git a/src/kitemviews/kfileitemmodelrolesupdater.cpp b/src/kitemviews/kfileitemmodelrolesupdater.cpp
+index 497c13b52..0ed28ee09 100644
+--- a/src/kitemviews/kfileitemmodelrolesupdater.cpp
++++ b/src/kitemviews/kfileitemmodelrolesupdater.cpp
+@@ -34,6 +34,7 @@
+ #include <QElapsedTimer>
+ #include <QFileInfo>
+ #include <QPainter>
++#include <QMimeDatabase>
+ #include <QPluginLoader>
+ #include <QTimer>
+ #include <chrono>
+@@ -555,7 +556,7 @@ void KFileItemModelRolesUpdater::slotSortRoleChanged(const QByteArray &current,
+     }
+ }
+ 
+-void KFileItemModelRolesUpdater::slotGotPreview(const KFileItem &item, const QPixmap &pixmap)
++void KFileItemModelRolesUpdater::slotGotPreview(const KFileItem &item, const QPixmap &preview)
+ {
+     if (m_state != PreviewJobRunning) {
+         return;
+@@ -568,7 +569,53 @@ void KFileItemModelRolesUpdater::slotGotPreview(const KFileItem &item, const QPi
+         return;
+     }
+ 
++    QPixmap pixmap = preview;
+     QHash<QByteArray, QVariant> data = rolesData(item, index);
++    
++    if (true /*optional some filter here: item.mimetype() == "..."*/) {
++        // get icon
++        QString iconName = data.value("iconName").toString();
++        if (iconName.size() == 0) {
++            QMimeDatabase mimeDb;
++            QMimeType mimeType = mimeDb.mimeTypeForName(item.mimetype());
++            iconName = mimeType.iconName();
++            if (iconName.size() == 0) {
++                iconName = mimeType.genericIconName();
++            }
++        }
++        QIcon icon = QIcon::fromTheme(iconName);
++        if (!icon.isNull()) {
++            // put icon on preview
++            
++            QSize final_size = /*preview.size()*/ cacheSize();
++            QPixmap final_pixmap(final_size);
++            final_pixmap.fill(Qt::transparent);
++            
++            QPainter painter(&final_pixmap);
++            painter.setRenderHint(QPainter::Antialiasing);
++            painter.setRenderHint(QPainter::SmoothPixmapTransform);
++            
++            painter.drawPixmap(
++                (final_size.width() - preview.width()) / 2,
++                (final_size.height() - preview.height()) / 2,
++                preview
++            );
++            
++            QSize icon_size = final_size / 3;
++            painter.setOpacity(0.7); 
++            painter.drawPixmap(
++                final_size.width() - icon_size.width(),
++                final_size.height() - icon_size.height(),
++                icon.pixmap(icon_size)
++            );
++            
++            painter.end();
++            pixmap = final_pixmap;
++            
++            qCWarning(DolphinDebug) << "Nazwa ikony:" << iconName;
++        }
++    }
++    
+     data.insert("iconPixmap", transformPreviewPixmap(pixmap));
+     data.insert("supportsSequencing", m_previewJob->handlesSequences());
+ 

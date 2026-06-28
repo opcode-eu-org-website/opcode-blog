@@ -26,7 +26,7 @@ Panel jest interaktywny i wspiera obsługę myszy dla:
 * przełączania stref czasowych za pomocą kółka przewijania
 * otwieranie okna kalendarza (za pomocą yad) poprzez kliknięcie zegara
 * podpowiedzi dla każdego elementu
-* zmianę rozmiaru okna poprzez kliknięcie (zawartość większego okna nadal zawiera elementy WIP/TODO)
+* <s>zmiany rozmiaru okna poprzez kliknięcie</s> (czasowo wyłączone)
 
 (wymaga to starszej wersji conky ze względu na [bug w 1.22](https://github.com/brndnmtthws/conky/issues/2288))
 
@@ -67,6 +67,14 @@ Główną jego wadą jest brak podtrzymania zawartości po zamknięciu aplikacji
 
 Innym problemem jest brak ikony systray w pewnych przypadkach - rozwiązaniem jest usunięcie zmiennych środowiskowych `DBUS_SESSION_BUS_ADDRESS` `XDG_RUNTIME_DIR` i `QT_QPA_PLATFORMTHEME` ze środowiska uruchamiającego copyq.
 
+
 **Repo konfiguracji**
 
-Konfiguracja środowiska pracy prezentowana tutaj w różnych wpisach została zebrana we własnym repo - https://bitbucket.org/OpCode-eu-org/DesktopConfig/
+Konfiguracja środowiska pracy prezentowana tutaj w różnych wpisach została zebrana we własnym repo - [https://bitbucket.org/OpCode-eu-org/DesktopConfig/](https://bitbucket.org/OpCode-eu-org/DesktopConfig/)
+
+Aby uniknąć traktowania całego $HOME z wszystkimi podkatalogami jako repozytorium git w Dolphin (oraz innych narzędziach wykrywających `.git`) można `.git` tego repozytorium przenieść na `.config_git` i używać do jego obsługi `cgit` zdefiniowanego następująco:
+
+	cgit() {
+		work_tree=$( find_work_tree() { if [ -d .config_git ]; then echo $PWD; elif [ "$PWD" != "/" ]; then cd ..; find_work_tree; fi; }; find_work_tree )
+		git --git-dir=$work_tree/.config_git --work-tree=$work_tree "$@"
+	}

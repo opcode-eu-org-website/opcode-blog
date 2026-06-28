@@ -1,0 +1,41 @@
+--- gwenview-25.04.3.orig/lib/semanticinfo/sorteddirmodel.cpp
++++ gwenview-25.04.3/lib/semanticinfo/sorteddirmodel.cpp
+@@ -266,6 +266,27 @@ void SortedDirModel::doApplyFilters()
+     QSortFilterProxyModel::invalidateFilter();
+ }
+ 
++static void stringToWCharArray(QVarLengthArray<wchar_t> &ret, QStringView string)
++{
++    ret.resize(string.length());
++    qsizetype len = string.toWCharArray(ret.data());
++    ret.resize(len+1);
++    ret[len] = 0;
++}
++
++static int lcompare(QStringView s1, QStringView s2)
++{
++    if (!s1.size())
++        return s2.size() ? -1 : 0;
++    if (!s2.size())
++        return +1;
++
++    QVarLengthArray<wchar_t> array1, array2;
++    stringToWCharArray(array1, s1);
++    stringToWCharArray(array2, s2);
++    return std::wcscoll(array1.constData(), array2.constData());
++}
++
+ bool SortedDirModel::lessThan(const QModelIndex &left, const QModelIndex &right) const
+ {
+     const KFileItem leftItem = itemForSourceIndex(left);
+@@ -277,6 +298,10 @@ bool SortedDirModel::lessThan(const QMod
+     if (leftIsDirOrArchive != rightIsDirOrArchive) {
+         return sortOrder() == Qt::AscendingOrder ? leftIsDirOrArchive : rightIsDirOrArchive;
+     }
++    
++    if (sortColumn() == KDirModel::Name) {
++        return lcompare(leftItem.name(), rightItem.name()) < 0;
++    }
+ 
+     // Apply special sort handling only to images. For folders/archives or when
+     // a secondary criterion is needed, delegate sorting to the parent class.

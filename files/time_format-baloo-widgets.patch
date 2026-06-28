@@ -1,0 +1,23 @@
+--- baloo-widgets-25.04.0.orig/src/widgetfactory.cpp
++++ baloo-widgets-25.04.0/src/widgetfactory.cpp
+@@ -47,13 +47,18 @@ static QString formatDateTime(const QVar
+     QDateTime dt = QDateTime::fromString(valueString, Qt::ISODate);
+ 
+     if (dt.isValid()) {
++        auto base_info = dt.toString(QString::fromUtf8("yyyy-MM-dd HH:mm:ss t"));
++        
++        if (QDateTime::currentDateTime().secsTo(dt) < -129600)
++            return base_info;
++
+         KFormat form;
+         QTime time = dt.time();
+         // Check if Date/DateTime
+         if (!time.hour() && !time.minute() && !time.second()) {
+-            return form.formatRelativeDate(dt.date(), dateFormat);
++            return base_info + QString::fromUtf8("\n") + form.formatRelativeDate(dt.date(), dateFormat);
+         } else {
+-            return form.formatRelativeDateTime(dt, dateFormat);
++            return base_info + QString::fromUtf8("\n") + form.formatRelativeDateTime(dt, dateFormat);
+         }
+     }
+ 

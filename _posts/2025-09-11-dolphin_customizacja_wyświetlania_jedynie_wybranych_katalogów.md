@@ -4,6 +4,7 @@ title: Customizacja wyświetlania jedynie wybranych katalogów w Dolphin
 author: Robert Paciorek
 tags:
 - debian
+- dolpin
 - kde
 ---
 

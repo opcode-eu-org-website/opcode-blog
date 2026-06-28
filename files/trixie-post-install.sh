@@ -88,7 +88,7 @@ pkg__32_DESKTOP_MULTIMEDIA__list="alsa-utils pavucontrol
 	# old: pavumeter
 
 pkg__32_DESKTOP_KDE__info="X11 desktop enviroment - konqueror, okular, kate"
-pkg__32_DESKTOP_KDE__list="konqueror dolphin kio kate okteta okular konsole konsole-kpart ark gwenview kfind
+pkg__32_DESKTOP_KDE__list="konqueror dolphin kio kate okteta okular konsole konsole-kpart ark gwenview kfind kompare
 	kde-runtime konq-plugins dolphin-plugins kio-extras kio-gopher sonnet6-plugins
 	kdegraphics-thumbnailers kimageformat-plugins ffmpegthumbs unrar unzip okular-extra-backends"
 	# old: kdepimlibs-kio-plugins
