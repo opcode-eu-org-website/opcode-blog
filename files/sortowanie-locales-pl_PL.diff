@@ -1,5 +1,5 @@
---- /usr/share/i18n/locales/pl_PL.org	2025-09-14 22:22:16.799521207 +0000
-+++ /usr/share/i18n/locales/pl_PL.new	2025-10-16 20:00:30.582232494 +0000
+--- old/usr/share/i18n/locales/pl_PL	2025-09-14 22:22:16.799521207 +0000
++++ new/usr/share/i18n/locales/pl_PL	2025-10-16 20:00:30.582232494 +0000
 @@ -50,81 +50,89 @@
  category "i18n:2012";LC_MEASUREMENT
  END LC_IDENTIFICATION

@@ -1,0 +1,12 @@
+[Unit]
+Description=Custom OpenURI Portal Service
+Requires=custom-dbus.service
+After=custom-dbus.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 %h/.bin/custom-portal.py
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

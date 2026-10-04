@@ -1,0 +1,11 @@
+[Unit]
+Description=Custom D-Bus Session Message Bus
+
+[Service]
+Type=simple
+ExecStartPre=-/usr/bin/rm -f /run/user/%U/games_chroot_dbus.sock
+ExecStart=/usr/bin/dbus-daemon --session --address=unix:path=/run/user/%U/games_chroot_dbus.sock --nofork --syslog-only
+Restart=on-failure
+
+[Install]
+WantedBy=default.target

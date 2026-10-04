@@ -54,7 +54,9 @@ Poniżej lista poleceń wyłączająca pewne usługi. Jest ona zasadna w specyfi
 	disable smartmontools
 	
 	# dyski montuję manualnie ... udisks2 jest zainstalowany tylko jako zależność plasma-workspace
-	disable udisks2
+	# ale dolphin potrzebuje udisks2 do działania osobnych koszy dla punktów montowania (`.Trash-$UID`)
+	# więc niestety udisks2 musi pozostać włączony
+	# disable udisks2
 	
 	# nie mam potrzeby żeby to się robiło przy starcie ... to jest wykonywane po instalacji
 	disable man-db

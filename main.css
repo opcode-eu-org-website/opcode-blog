@@ -176,9 +176,9 @@ p {
 	overflow: auto;
 }
 
-.post ul, .post ol {
+/*.post ul, .post ol {
 	margin-left: 1.35em;
-}
+}*/
 
 .post code {
 	border: 1px solid #ddd;
