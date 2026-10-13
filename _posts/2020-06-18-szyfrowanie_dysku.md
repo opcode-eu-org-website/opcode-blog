@@ -146,6 +146,22 @@ Dodatkowo należy utworzyć plik `/etc/grub.d/13_linux_secure.conf` przy pomocy 
 	echo ROOTFS_UUID=$ROOTFS_UUID >> /etc/grub.d/13_linux_secure.conf
 
 
+### (uzupełnienie 2026) Szyfrowany obraz dysku w pliku
+
+Możliwe jest też tworzenie szyfrowanego obrazu dysku w pliku. Obraz taki może nawet odzyskiwać miejsce po skasowanych danych (opcje `--allow-discards` i `-o discard` w poniższych poleceniach).
+
+	truncate -s 50G kontener.img
+	sudo cryptsetup luksFormat kontener.img
+	sudo cryptsetup open kontener.img kontener --allow-discards
+	sudo mkfs.ext4 /dev/mapper/kontener
+	mkdir kontener
+	sudo mount -o discard /dev/mapper/kontener kontener
+	sudo chown $USER kontener/
+
+Jeżeli miejsce nie odzyskuje się w pełni automatyczne może być konieczne okresowe uruchomienie `sudo fstrim -v kontener`.
+Wadą jest spora zajętość dla pustego obrazu – o ile po samym utworzeniu luks zajmuje on 16MB to po utworzeniu systemu zajmuje on 1.1GB (ponad 2% zadeklarowanego rozmiaru).
+Jest to efekt użycia szyfrowania – w przypadku nieszyfrowanego obrazu 50GB realna zajętość jest poniżej 8MB (niecałe 0.02% zadeklarowanego rozmiaru).
+
 ### Zobacz także
 
 * [Własny Debian LiveUSB](http://www.opcode.eu.org/LiveUSB.xhtml)
