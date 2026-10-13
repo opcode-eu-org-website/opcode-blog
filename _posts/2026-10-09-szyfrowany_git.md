@@ -4,6 +4,7 @@ title: Szyfrowany git
 author: Robert Paciorek
 tags:
 - git
+- kryptografia
 ---
 
 Do zagadnienia szyfrowania repozytorium git lub tez danych w takim repozytorium można podejść na kilka sposobów.

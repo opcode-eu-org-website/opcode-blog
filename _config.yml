@@ -9,5 +9,5 @@ tags_plugin:
   descriptions:
     tag: Pełny tekst
 mainpage:
-  maxposts: 5
+  maxposts: 8
   layout: index
