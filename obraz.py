@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Copyright (c) 2012-2018 Andrey Vlasovskikh
+# Copyright (c) 2012-2023 Andrey Vlasovskikh
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -49,10 +49,10 @@ Options:
     -v --version            Show version.
     -h --help               Show help message.
 
-For documentation see <http://obraz.pirx.ru/>.
+For documentation see <https://obraz.pirx.ru/>.
 """
 
-import errno
+import contextlib
 import os
 import re
 import shutil
@@ -64,8 +64,18 @@ from http.server import SimpleHTTPRequestHandler, HTTPServer
 from io import BytesIO
 from threading import Thread
 from time import sleep
-from typing import (Collection, Any, Callable, Iterable, Dict, Sequence,
-                    TypeVar, Optional, List)
+from typing import (
+    BinaryIO,
+    Any,
+    Callable,
+    Iterable,
+    Sequence,
+    TypeVar,
+    Optional,
+    TypedDict,
+    Union,
+    cast,
+)
 from urllib.request import pathname2url, url2pathname
 
 import yaml
@@ -74,49 +84,111 @@ from jinja2 import Environment, FileSystemLoader
 from markdown import markdown
 
 __all__ = [
-    'file_filter',
-    'generator',
-    'loader',
-    'processor',
-    'template_filter',
-    'template_renderer',
+    "file_filter",
+    "generator",
+    "loader",
+    "processor",
+    "template_filter",
+    "template_renderer",
 ]
 
-PAGE_ENCODING = URL_ENCODING = 'UTF-8'
+PAGE_ENCODING = "UTF-8"
 
-DEFAULT_CONFIG: Dict[str, Any] = {
-    'source': './',
-    'destination': './_site',
-    'include': ['.htaccess'],
-    'exclude': [],
-    'exclude_patterns': [
-        r'^[\.#].*',
-        r'.*~$',
-        r'.*\.swp$',
-        #r'.*\.s[uvw][a-z]$',  # *.swp files, etc.
+
+class ConfigBase(TypedDict):
+    source: str
+    destination: str
+    include: list[str]
+    exclude: list[str]
+    exclude_patterns: list[str]
+    full_build_patterns: list[str]
+    host: str
+    port: str
+    baseurl: str
+    permalink: str
+
+
+class Config(ConfigBase, total=False):
+    time: datetime
+    drafts: bool
+    force: bool
+    trace: bool
+
+
+class File(TypedDict):
+    url: str
+    path: str
+
+
+class TemplateBase(TypedDict):
+    content: str
+
+
+class Template(TemplateBase, total=False):
+    layout: str
+
+
+class PageBase(Template):
+    url: str
+
+
+class Page(PageBase, total=False):
+    path: str
+    published: bool
+    raw_content: bool
+
+
+class PostBase(Page):
+    date: datetime
+    id: str
+
+
+class Post(PostBase, total=False):
+    next: "Post"  # type: ignore
+    previous: "Post"  # type: ignore
+    tags: list[str]
+
+
+class SiteContents(TypedDict, total=False):
+    files: list[File]
+    pages: list[Page]
+    posts: list[Post]
+    tags: dict[str, list[Post]]
+
+
+class Site(SiteContents, Config):
+    pass
+
+
+DEFAULT_CONFIG: ConfigBase = {
+    "source": "./",
+    "destination": "./_site",
+    "include": [".htaccess"],
+    "exclude": [],
+    "exclude_patterns": [r"^[\.#].*", r".*~$", r".*\.sw[op]$"],
+    "full_build_patterns": [
+        r"_layouts",
+        r"_includes",
     ],
-    'full_build_patterns': [
-        r'_layouts',
-        r'_includes',
-    ],
-    'host': '0.0.0.0',
-    'port': '8000',
-    'baseurl': '',
+    "host": "localhost",
+    "port": "8000",
+    "baseurl": "",
+    "permalink": "/{year}/{month}/{day}/{title}.html",
 }
 
 _quiet = False
-_loaders = []
-_processors = []
-_file_filters = {}
-_template_filters = {}
-_render_string = lambda string, context, site: string
-_T = TypeVar('_T')
+_loaders: list[Callable[[str, Config], Optional[SiteContents]]] = []
+_processors: list[Callable[[Site], None]] = []
+_render_string = lambda s, _context, _config: s
+_file_filters: dict[str, Callable[[str, Config], str]] = {}
+_template_filters: dict[str, Callable[[str, Config], str]] = {}
+_T = TypeVar("_T")
 
 
-def file_filter(extensions: Collection[str]) -> Any:
+def file_filter(extensions: Iterable[str]) -> Any:
     """Register a page content filter for file extensions."""
 
-    def wrapper(f):
+    def wrapper(f: Callable[[str, Config], str]) -> Callable[[str, Config], str]:
         for ext in extensions:
             _file_filters[ext] = f
         return f
@@ -127,66 +199,65 @@ def file_filter(extensions: Collection[str]) -> Any:
 def template_filter(name: str) -> Any:
     """Register a template filter."""
 
-    def wrapper(f):
+    def wrapper(f: Callable[[str, Config], str]) -> Callable[[str, Config], str]:
         _template_filters[name] = f
         return f
 
     return wrapper
 
 
-def template_renderer(f: Callable[[str, dict, dict], str]) -> Any:
+def template_renderer(f: Callable[[str, dict[str, Any], Config], str]) -> Any:
     """Set a custom template renderer."""
     global _render_string
     _render_string = f
     return f
 
 
-def loader(f: Callable[[str, dict], dict]) -> Any:
+def loader(f: Callable[[str, Config], Optional[SiteContents]]) -> Any:
     """Register a site source content loader."""
     _loaders.insert(0, f)
     return f
 
 
-def processor(f: Callable[[str], None]) -> Any:
+def processor(f: Callable[[Site], None]) -> Any:
     """Register a site content processor."""
     _processors.insert(0, f)
     return f
 
 
-def generator(f: Callable[[str], None]) -> Any:
+def generator(f: Callable[[Site], None]) -> Any:
     """Register a destination files generator for the site."""
     _processors.append(f)
     return f
 
 
-def fallback_loader(f: Callable[[str, dict], dict]) -> Any:
+def fallback_loader(f: Callable[[str, Config], Optional[SiteContents]]) -> Any:
     _loaders.append(f)
     return f
 
 
 def load_yaml_mapping(path: str) -> dict:
     try:
-        with open(path, 'rb') as fd:
+        with open(path, "rb") as fd:
             mapping = yaml.safe_load(fd)
             return mapping if mapping else {}
-    except IOError as e:
-        if e.errno == errno.ENOENT:
-            return {}
+    except FileNotFoundError:
+        return {}
 
 
-def merge(x1, x2):
+def merge(x1: _T, x2: _T) -> _T:
     if isinstance(x1, dict) and isinstance(x2, dict):
-        res = x1.copy()
+        res_dict = x1.copy()
         for k, v in x2.items():
-            if k in res:
-                res[k] = merge(res[k], v)
+            if k in res_dict:
+                res_dict[k] = merge(res_dict[k], v)
             else:
-                res[k] = v
-        return res
+                res_dict[k] = v
+        return cast(_T, res_dict)
     elif isinstance(x1, list) and isinstance(x2, list):
-        res = list(x1)
-        res.extend(x2)
-        return res
+        res_list = x1.copy()
+        res_list.extend(x2)
+        return cast(_T, res_list)
     elif x1 == x2:
         return x1
     else:
@@ -202,9 +273,10 @@ def all_source_files(source: str, destination: str) -> Iterable[str]:
             yield os.path.join(source, filename)
 
 
-def changed_files(source: str, destination: str, config: Dict[str, Any],
-                  poll_interval: int = 1) -> str:
-    times = {}
+def changed_files(
+    source: str, destination: str, config: Config, poll_interval: int = 1
+) -> Iterable[list[str]]:
+    times: dict[str, float] = {}
     while True:
         changed = []
         for path in all_source_files(source, destination):
@@ -221,16 +293,14 @@ def changed_files(source: str, destination: str, config: Dict[str, Any],
         sleep(poll_interval)
 
 
-def is_file_visible(path: str, config: Dict[str, Any]) -> bool:
+def is_file_visible(path: str, config: Config) -> bool:
     """Check file name visibility according to site settings."""
     parts = path.split(os.path.sep)
-    exclude = config.get('exclude', [])
-    exclude_patterns = config.get('exclude_patterns', [])
-    if path in config.get('include', []):
+    exclude = config.get("exclude", [])
+    exclude_patterns = config.get("exclude_patterns", [])
+    if path in config.get("include", []):
         return True
-    elif any(re.match(pattern, part)
-             for pattern in exclude_patterns
-             for part in parts):
+    elif any(re.match(pattern, part) for pattern in exclude_patterns for part in parts):
         return False
     elif any(path.startswith(s) for s in exclude):
         return False
@@ -240,40 +310,34 @@ def is_file_visible(path: str, config: Dict[str, Any]) -> bool:
 
 def is_underscored(path: str) -> bool:
     parts = path.split(os.path.sep)
-    return any(part.startswith('_') for part in parts)
+    return any(part.startswith("_") for part in parts)
 
 
 def path2url(path: str) -> str:
-    m = re.match(r'(.*)[/\\]index.html?$', path)
+    m = re.match(r"(.*)[/\\]index.html?$", path)
     if m:
         path = m.group(1) + os.path.sep
     path = os.path.sep + path
-    return pathname2url(path.encode(URL_ENCODING))
+    return pathname2url(path)
 
 
 def url2path(url: str) -> str:
-    if url.endswith('/'):
-        url += 'index.html'
+    if url.endswith("/"):
+        url += "index.html"
     return url2pathname(url).lstrip(os.path.sep)
 
 
 def make_dirs(path: str) -> None:
-    try:
+    with contextlib.suppress(FileExistsError):
         os.makedirs(path)
-    except OSError as e:
-        if e.errno == errno.EEXIST:
-            pass
 
 
 def remove(path: str) -> None:
-    try:
+    with contextlib.suppress(FileExistsError):
         if os.path.isdir(path):
             shutil.rmtree(path)
         else:
             os.remove(path)
-    except OSError as e:
-        if e.errno == errno.EEXIST:
-            pass
 
 
 def info(message: str) -> None:
@@ -284,11 +348,11 @@ def info(message: str) -> None:
 def exception(e: BaseException, trace: bool) -> None:
     if trace:
         traceback.print_tb(e.__traceback__)
-    log(f'Error: {e}')
+    log(f"Error: {e}")
 
 
 def log(message: str) -> None:
-    sys.stderr.write(f'{message}\n')
+    sys.stderr.write(f"{message}\n")
     sys.stderr.flush()
 
 
@@ -300,9 +364,9 @@ def progress(msg: str, xs: Sequence[_T]) -> Iterable[_T]:
         size = len(xs)
         for i, x in enumerate(xs, 1):
             yield x
-            s = f'{msg}: {int(i * 100 / size)}% ({i}/{size})'
-            sys.stderr.write('\r' + s)
-        sys.stderr.write('\n')
+            s = f"{msg}: {int(i * 100 / size)}% ({i}/{size})"
+            sys.stderr.write("\r" + s)
+        sys.stderr.write("\n")
 
 
 def file_suffix(path: str) -> str:
@@ -316,29 +380,29 @@ def object_name(f: Any) -> str:
         for line in lines:
             line = line.strip()
             if line:
-                return line.rstrip('.')
+                return line.rstrip(".")
     return f.__name__
 
 
-@template_filter('markdownify')
-@file_filter(['.md', '.markdown'])
-def markdown_filter(s: str, config: Any) -> str:
+@template_filter("markdownify")
+@file_filter([".md", ".markdown"])
+def markdown_filter(s: str, config: Config) -> str:
     return markdown(s)
 
 
 @fallback_loader
-def load_file(path: str, config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+def load_file(path: str, config: Config) -> Optional[SiteContents]:
     if not is_file_visible(path, config) or is_underscored(path):
         return None
+    file: File = {"url": path2url(path), "path": path}
     return {
-        'files': [{'url': path2url(path), 'path': path}],
+        "files": [file],
     }
 
 
 @template_renderer
-def jinja2_render_string(string: str, context: Dict[str, Any],
-                         config: Dict[str, Any]) -> str:
-    includes = os.path.join(config['source'], '_includes')
+def jinja2_render_string(string: str, context: dict[str, Any], config: Config) -> str:
+    includes = os.path.join(config["source"], "_includes")
     env = Environment(loader=FileSystemLoader(includes))
     for name, f in _template_filters.items():
         env.filters[name] = lambda s: f(s, config)
@@ -346,78 +410,78 @@ def jinja2_render_string(string: str, context: Dict[str, Any],
     return t.render(**context)
 
 
-def read_template(path: str) -> Optional[Dict[str, Any]]:
-    with open(path, 'rb') as fd:
-        if fd.read(3) != b'---':
+def read_template(path: str) -> Optional[Template]:
+    with open(path, "rb") as fd:
+        if fd.read(3) != b"---":
             return None
         lines = []
         while True:
             line = fd.readline()
-            if re.match(b'^---\r?\n', line):
+            if re.match(b"^---\r?\n", line):
                 break
-            elif line == b'':
+            elif line == b"":
                 return None
             lines.append(line)
-        front_matter = BytesIO(b''.join(lines))
+        front_matter = BytesIO(b"".join(lines))
         front_matter.name = path
         page = yaml.safe_load(front_matter)
         if not page:
             page = {}
         content = fd.read().decode(PAGE_ENCODING)
-        page['content'] = content
+        page["content"] = content
         return page
 
 
 @loader
-def load_page(path: str, config: Dict[str, Any]) -> Optional[Dict['str', Any]]:
+def load_page(path: str, config: Config) -> Optional[SiteContents]:
     if not is_file_visible(path, config) or is_underscored(path):
         return None
     name, suffix = os.path.splitext(path)
     if suffix in _file_filters:
-        dst = f'{name}.html'
+        dst = f"{name}.html"
     else:
         dst = path
-    page = read_template(os.path.join(config['source'], path))
+    page = cast(Page, read_template(os.path.join(config["source"], path)))
     if not page:
         return None
-    page.update({'url': path2url(dst), 'path': path})
-    return {
-        'pages': [page]
-    }
+    page["url"] = path2url(dst)
+    page["path"] = path
+    return {"pages": [page]}
 
 
-def read_post(path: str, date: datetime, title: str,
-              config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    page = read_template(os.path.join(config['source'], path))
-    if not page:
+def read_post(
+    path: str, date: datetime, title: str, config: Config
+) -> Optional[SiteContents]:
+    post = cast(Post, read_template(os.path.join(config["source"], path)))
+    if not post:
         return None
-    if 'date' in page:
-        date = page['date']
-    permalink = config.get('permalink', '/{year}/{month}/{day}/{title}.html')
+    if "date" in post:
+        date = post["date"]
     url_vars = {
-        'year': f'{date.year:04}',
-        'month': f'{date.month:02}',
-        'day': f'{date.day:02}',
-        'title': title,
+        "year": f"{date.year:04}",
+        "month": f"{date.month:02}",
+        "day": f"{date.day:02}",
+        "title": title,
     }
-    url = pathname2url(permalink.format(**url_vars))
-    page.update({'url': url, 'path': path})
-    if 'date' not in page:
-        date_str = '{year}-{month}-{day}'.format(**url_vars)
-        page['date'] = datetime.strptime(date_str, '%Y-%m-%d')
-    page['id'] = '/{year}/{month}/{day}/{title}'.format(**url_vars)
+    post["url"] = pathname2url(config["permalink"].format(**url_vars))
+    post["path"] = path
+    if "date" not in post:
+        date_str = "{year}-{month}-{day}".format(**url_vars)
+        post["date"] = datetime.strptime(date_str, "%Y-%m-%d")
+    post["id"] = "/{year}/{month}/{day}/{title}".format(**url_vars)
     return {
-        'posts': [page],
-        'tags': dict((tag, [page]) for tag in page.get('tags', [])),
+        "posts": [post],
+        "tags": dict((tag, [post]) for tag in post.get("tags", [])),
     }
 
 
 @loader
-def load_post(path: str, config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    post_re = re.compile(r'(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})-'
-                         r'(?P<title>.+)')
+def load_post(path: str, config: Config) -> Optional[SiteContents]:
+    post_re = re.compile(
+        r"(?P<year>\d{4})-(?P<month>\d{2})-(?P<day>\d{2})-" r"(?P<title>.+)"
+    )
     parts = path.split(os.path.sep)
-    if '_posts' not in parts:
+    if "_posts" not in parts:
         return None
     if not is_file_visible(path, config):
         return None
@@ -425,80 +489,80 @@ def load_post(path: str, config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     m = post_re.match(name)
     if not m:
         return None
-    date = datetime.strptime('{year}-{month}-{day}'.format(**m.groupdict()),
-                             '%Y-%m-%d')
-    return read_post(path, date, m.group('title'), config)
+    date = datetime.strptime("{year}-{month}-{day}".format(**m.groupdict()), "%Y-%m-%d")
+    return read_post(path, date, m.group("title"), config)
 
 
 @loader
-def load_draft(path: str, config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    if not config.get('drafts'):
+def load_draft(path: str, config: Config) -> Optional[SiteContents]:
+    if not config.get("drafts"):
         return None
-    if '_drafts' not in path.split(os.path.sep):
+    if "_drafts" not in path.split(os.path.sep):
         return None
     if not is_file_visible(path, config):
         return None
     title, _ = os.path.splitext(os.path.basename(path))
-    return read_post(path, config['time'], title, config)
+    return read_post(path, config.get("time", datetime.utcnow()), title, config)
 
 
-def render_layout(content: str, page: Dict[str, Any],
-                  site: Dict[str, Any]) -> str:
-    name = page.get('layout', 'nil')
-    if name == 'nil':
+def render_layout(content: str, template: Template, site: Site) -> str:
+    name = template.get("layout", "nil")
+    if name == "nil":
         return content
-    layout_file = os.path.join(site['source'], '_layouts', f'{name}.html')
+    layout_file = os.path.join(site["source"], "_layouts", f"{name}.html")
     layout = read_template(layout_file)
     if not layout:
         raise Exception(f"Cannot load template: '{layout_file}'")
-    page_copy = page.copy()
-    page_copy.pop('layout', None)
-    page_copy.pop('content', None)
-    layout.update(page_copy)
+    layout_copy = cast(dict, layout.copy())
+    page_copy = cast(dict, template.copy())
+    page_copy.pop("layout", None)
+    page_copy.pop("content", None)
+    layout_copy.update(page_copy)
+    layout = cast(Template, layout_copy)
     context = {
-        'site': site,
-        'page': layout,
-        'content': content,
+        "site": site,
+        "page": layout,
+        "content": content,
     }
-    content = _render_string(layout['content'], context, site)
+    content = _render_string(layout["content"], context, site)
     return render_layout(content, layout, site)
 
 
-def render_page(page: Dict[str, Any], site: Dict[str, Any]) -> str:
+def render_page(page: Page, site: Site) -> str:
     context = {
-        'site': site,
-        'page': page,
+        "site": site,
+        "page": page,
     }
-    content = page['content']
-    if not page.get('raw_content', False):
+    content = page["content"]
+    if not page.get("raw_content", False):
         content = _render_string(content, context, site)
-    f = _file_filters.get(file_suffix(page.get('path', '')))
+    f = _file_filters.get(file_suffix(page.get("path", "")))
     if f:
         content = f(content, site)
-    page['content'] = content
+    page["content"] = content
     return render_layout(content, page, site)
 
 
 @processor
-def process_posts(site: Dict[str, Any]) -> None:
+def process_posts(site: Site) -> None:
     """Sort and interlink posts."""
-    posts = site.setdefault('posts', [])
-    posts.sort(key=lambda p: p['date'], reverse=True)
+    posts: list[Post] = site.setdefault("posts", [])
+    posts.sort(key=lambda p: p["date"], reverse=True)
     n = len(posts)
     for i, post in enumerate(posts):
         if i < n - 1:
-            post['next'] = posts[i + 1]
+            post["next"] = posts[i + 1]
         if i > 0:
-            post['previous'] = posts[i - 1]
+            post["previous"] = posts[i - 1]
 
 
-def generate_page(page: Dict[str, Any], site: Dict[str, Any]) -> None:
-    if not page.get('published', True):
+def generate_page(page: Page, site: Site) -> None:
+    if not page.get("published", True):
         return
-    url = page['url']
-    dst = os.path.join(site['destination'], url2path(url))
+    url = page["url"]
+    dst = os.path.join(site["destination"], url2path(url))
     make_dirs(os.path.dirname(dst))
-    with open(dst, 'wb') as fd:
+    with open(dst, "wb") as fd:
         fd.truncate()
         try:
             rendered = render_page(page, site)
@@ -508,126 +572,127 @@ def generate_page(page: Dict[str, Any], site: Dict[str, Any]) -> None:
 
 
 @generator
-def generate_pages(site: Dict[str, Any]) -> None:
+def generate_pages(site: Site) -> None:
     """Generate pages with YAML front matter."""
-    posts = site.get('posts', [])
-    pages = site.get('pages', [])
-    for page in progress('Generating pages', posts + pages):
+    posts = cast(list[Page], site.get("posts", []))
+    pages = site.get("pages", [])
+    for page in progress("Generating pages", posts + pages):
         generate_page(page, site)
 
 
 @generator
-def generate_files(site: Dict[str, Any]) -> None:
+def generate_files(site: Site) -> None:
     """Copy static files."""
-    for file_dict in site.get('files', []):
-        src = os.path.join(site['source'], file_dict['path'])
-        dst = os.path.join(site['destination'], url2path(file_dict['url']))
+    for file_dict in site.get("files", []):
+        src = os.path.join(site["source"], file_dict["path"])
+        dst = os.path.join(site["destination"], url2path(file_dict["url"]))
         make_dirs(os.path.dirname(dst))
         shutil.copy(src, dst)
 
 
 def load_plugins(source: str) -> None:
-    plugins = sorted(glob(os.path.join(source, '_plugins', '*.py')))
+    plugins = sorted(glob(os.path.join(source, "_plugins", "*.py")))
     n = 0
     for plugin in plugins:
-        with open(plugin, 'rb') as fd:
+        with open(plugin, "rb") as fd:
             code = fd.read()
-            exec(compile(code, plugin, 'exec'), {})
+            exec(compile(code, plugin, "exec"), {})
         n += 1
     if n > 0:
-        info(f'Loaded {n} plugins')
+        info(f"Loaded {n} plugins")
 
 
-def build(config: Dict[str, Any]) -> None:
+def build(config: Config) -> None:
     site = load_site(config)
     generate_site(site)
 
 
-def build_delta(paths: Iterable[str], config: Dict[str, Any]) -> None:
+def build_delta(paths: Iterable[str], config: Config) -> None:
     site = load_site_files(paths, config)
     generate_site(site, clean=False)
 
 
-def load_site_files(paths: Iterable[str],
-                    config: Dict[str, Any]) -> Dict[str, Any]:
-    source = config['source']
-    info('Loading source files...')
-    site = config.copy()
+def load_site_files(paths: Iterable[str], config: Config) -> Site:
+    source = config["source"]
+    info("Loading source files...")
+    site = cast(SiteContents, config.copy())
     n = 0
     for path in paths:
         rel_path = os.path.relpath(path, source)
         for f in _loaders:
-            data = f(rel_path, site)
+            data = f(rel_path, config)
             if data:
                 n += 1
                 site = merge(site, data)
                 break
-    info(f'Loaded {n} files')
-    return site
+    info(f"Loaded {n} files")
+    return cast(Site, site)
 
 
-def load_site(config: Dict[str, Any]) -> Dict[str, Any]:
-    paths = all_source_files(config['source'], config['destination'])
+def load_site(config: Config) -> Site:
+    paths = all_source_files(config["source"], config["destination"])
     return load_site_files(paths, config)
 
 
-def generate_site(site: Dict[str, Any], clean: bool = True) -> None:
-    destination = site['destination']
-    marker = os.path.join(destination, '.obraz_destination')
+def generate_site(site: Site, clean: bool = True) -> None:
+    destination = site["destination"]
+    marker = os.path.join(destination, ".obraz_destination")
     write_denied = os.path.exists(destination) and not os.path.exists(marker)
-    if write_denied and not site.get('force'):
-        raise Exception(f"Use --force to overwrite the contents "
-                        f"of '{destination}' not marked as destination "
-                        f"directory yet")
+    if write_denied and not site.get("force"):
+        raise Exception(
+            f"Use --force to overwrite the contents "
+            f"of '{destination}' not marked as destination "
+            f"directory yet"
+        )
     make_dirs(destination)
     if clean:
         for name in os.listdir(destination):
             remove(os.path.join(destination, name))
-        with open(marker, 'wb'):
+        with open(marker, "wb"):
             pass
     for f in _processors:
         msg = object_name(f)
-        info(f'{msg}...')
+        info(f"{msg}...")
         f(site)
-    info('Site generated successfully')
+    info("Site generated successfully")
 
 
-def make_server(config: Dict[str, Any]) -> HTTPServer:
-    host = config['host']
-    port = int(config['port'])
-    baseurl = config['baseurl']
+def make_server(config: Config) -> HTTPServer:
+    host = config["host"]
+    port = int(config["port"])
+    baseurl = config["baseurl"]
 
     class Handler(SimpleHTTPRequestHandler):
-        def send_head(self):
+        def send_head(self) -> Union[BytesIO, BinaryIO, None]:
             if not self.path.startswith(baseurl):
-                self.send_error(404, 'File not found')
+                self.send_error(404, "File not found")
                 return None
-            self.path = self.path[len(baseurl):]
-            if not self.path.startswith('/'):
-                self.path = '/' + self.path
+            self.path = self.path[len(baseurl) :]
+            if not self.path.startswith("/"):
+                self.path = "/" + self.path
             return SimpleHTTPRequestHandler.send_head(self)
 
     return HTTPServer((host, port), Handler)
 
 
-def serve(config: Dict[str, Any]) -> None:
+def serve(config: Config) -> None:
     build(config)
     server = make_server(config)
-    os.chdir(config['destination'])
+    os.chdir(config["destination"])
     log_serving(config)
     server.serve_forever()
 
 
-def watch(config: Dict[str, Any]) -> None:
-    source = os.path.abspath(config['source'])
-    destination = os.path.abspath(config['destination'])
+def watch(config: Config) -> None:
+    source = os.path.abspath(config["source"])
+    destination = os.path.abspath(config["destination"])
     initial_dir = os.getcwd()
     serving = False
     server = make_server(config)
 
     for changed in changed_files(source, destination, config):
         if serving:
-            info(f'Changed {len(changed)} files, regenerating...')
+            info(f"Changed {len(changed)} files, regenerating...")
             server.shutdown()
             os.chdir(initial_dir)
         try:
@@ -638,7 +703,7 @@ def watch(config: Dict[str, Any]) -> None:
         except KeyboardInterrupt:
             raise
         except Exception as e:
-            exception(e, config.get('trace'))
+            exception(e, bool(config.get("trace")))
         os.chdir(destination)
         log_serving(config)
         thread = Thread(target=server.serve_forever)
@@ -648,89 +713,82 @@ def watch(config: Dict[str, Any]) -> None:
             serving = True
 
 
-def log_serving(config: Dict[str, Any]) -> None:
-    url = 'http://{host}:{port}{baseurl}'.format(**config)
-    if not url.endswith('/'):
-        url += '/'
-    info(f'Serving at {url}')
+def log_serving(config: Config) -> None:
+    url = "http://{host}:{port}{baseurl}".format(**config)
+    if not url.endswith("/"):
+        url += "/"
+    info(f"Serving at {url}")
 
 
-def full_build_required(changed_paths: Iterable[str],
-                        config: Dict[str, Any]) -> bool:
-    patterns = config.get('full_build_patterns', [])
-    source = os.path.abspath(config['source'])
+def full_build_required(changed_paths: Iterable[str], config: Config) -> bool:
+    patterns = config.get("full_build_patterns", [])
+    source = os.path.abspath(config["source"])
     for path in changed_paths:
         parts = os.path.relpath(path, source).split(os.path.sep)
-        if any(re.match(pattern, part)
-               for pattern in patterns
-               for part in parts):
+        if any(re.match(pattern, part) for pattern in patterns for part in parts):
             return True
     return False
 
 
 def new_site(path: str) -> None:
-    from site import USER_BASE
-
     if os.path.exists(path) and os.listdir(path):
         raise Exception(f"Path '{path}' exists and is not empty")
-    dev_source = os.path.join(os.path.dirname(__file__), 'scaffold')
-    user_source = os.path.join(USER_BASE, 'obraz/scaffold')
+    dev_source = os.path.join(os.path.dirname(__file__), "scaffold")
     if os.path.exists(dev_source):
         source = dev_source
-    elif os.path.exists(user_source):
-        source = user_source
     else:
-        source = os.path.join(sys.prefix, 'obraz/scaffold')
+        source = os.path.join(sys.prefix, "obraz/scaffold")
     shutil.copytree(source, path)
     info(f"New Obraz site installed in '{path}'")
 
 
-def obraz(argv: List[str]) -> None:
-    opts = docopt(__doc__, argv=argv, version='0.9')
+def obraz(argv: list[str]) -> None:
+    opts = docopt(__doc__ or "", argv=argv, version="0.9.5")
     global _quiet
-    _quiet = opts['--quiet']
+    _quiet = opts["--quiet"]
 
     try:
-        if opts['new']:
-            new_site(opts['PATH'])
+        if opts["new"]:
+            new_site(opts["PATH"])
             return
 
-        config = DEFAULT_CONFIG.copy()
-        source = opts['--source'] if opts['--source'] else './'
-        config_file = os.path.join(source, '_config.yml')
-        config.update(load_yaml_mapping(config_file))
-        config['time'] = datetime.utcnow()
+        copy = cast(dict, DEFAULT_CONFIG.copy())
+        source = opts["--source"] if opts["--source"] else "./"
+        config_file = os.path.join(source, "_config.yml")
+        copy.update(load_yaml_mapping(config_file))
+        copy["time"] = datetime.utcnow()
         for k, v in opts.items():
-            if k.startswith('--') and v:
-                config[k[2:]] = v
+            if k.startswith("--") and v:
+                copy[k[2:]] = v
+        config = cast(Config, copy)
 
         info(f'Source: {os.path.abspath(config["source"])}')
         info(f'Destination: {os.path.abspath(config["destination"])}')
 
-        if not config.get('safe'):
+        if not config.get("safe"):
             load_plugins(source)
 
-        if opts['build']:
+        if opts["build"]:
             build(config)
-        elif opts['serve']:
-            if opts['--watch']:
+        elif opts["serve"]:
+            if opts["--watch"]:
                 watch(config)
             else:
                 serve(config)
     except KeyboardInterrupt:
-        info('Interrupted')
+        info("Interrupted")
     except BaseException as e:
-        exception(e, opts['--trace'])
+        exception(e, opts["--trace"])
         raise
 
 
 def main() -> None:
-    sys.modules['obraz'] = sys.modules[__name__]
-    #try:
-    obraz(sys.argv[1:])
-    #except Exception:
-    #    sys.exit(1)
+    sys.modules["obraz"] = sys.modules[__name__]
+    try:
+        obraz(sys.argv[1:])
+    except Exception:
+        sys.exit(1)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
