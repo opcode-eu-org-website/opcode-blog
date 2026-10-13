@@ -70,10 +70,6 @@ p {
 	overflow: hidden;
 }
 
-.footer a {
-	color: #8085c1;
-}
-
 .footer .info {
 	width: min-content;
 	margin: 8px;
@@ -98,6 +94,13 @@ p {
 	height: 80px;
 }
 
+.info {
+	color: #666;
+}
+
+.info a {
+	color: #8085c1;
+}
 
 /* lista postów */
 .posts {

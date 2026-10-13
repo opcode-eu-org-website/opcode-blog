@@ -1,6 +1,6 @@
 name: OpCode.eu.org – Blog
 url: http://blog.opcode.eu.org
-destination: /dev/shm/opcode-blog
+destination: /tmp/opcode-blog
 exclude:
   - Makefile
   - obraz.py

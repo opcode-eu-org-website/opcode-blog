@@ -33,6 +33,7 @@ jobs:
       - name: Run build script via Make
         run: |
           python3 obraz.py build -d /tmp/output-www/
+          (cd /tmp/output-www/; rm -f offline.tar.xz; tar -chJf ../offline.tar.xz .; mv ../offline.tar.xz .)
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

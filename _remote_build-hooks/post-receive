@@ -1,0 +1,44 @@
+#!/bin/bash
+
+if [ "$GIT_DIR" = "." -a -d .git ]; then
+	echo "work-tree inside .git dir is suspicious ... stop" > /dev/stderr
+	exit 1
+fi
+
+if [ "$GIT_DIR" = "." ]; then
+	HEAD=`git rev-parse --short HEAD`
+	cd ..
+	unset GIT_DIR
+	if [ "$HEAD" != `git rev-parse --short HEAD` ]; then
+		echo "Diffrent HEAD after cd ... stop" > /dev/stderr
+	fi
+fi
+
+if [ ! -f .git/config ]; then
+	echo "Unable to find work-tree ... stop" > /dev/stderr
+	exit 1
+fi
+if echo "/$PWD/" | grep "/.git/" >& /dev/null; then
+	echo "work-tree inside .git dir is suspicious ... stop" > /dev/stderr
+	exit 1
+fi
+
+
+info1="=== post-recive hook on `hostname` ==="
+info2=$(eval printf '=%.0s' {1..${#info1}})
+
+echo -e "\n$info1"
+
+git reset --hard
+git clean -df
+git checkout -f .
+
+if python3 obraz.py build -d /srv/WebPages/blog/; then
+	echo -e "\\033[0;30;42m  BUILD OK  \\033[0m"
+else
+	echo -e "\\033[1;5;33;41m  BUILD ERROR  \\033[0m"
+fi
+(cd /srv/WebPages/blog/; rm -f offline.tar.xz; tar -chJf /tmp/blog-offline.tar.xz .; mv /tmp/blog-offline.tar.xz offline.tar.xz)
+
+echo -e "$info2\n"
+
